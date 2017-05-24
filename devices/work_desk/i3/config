@@ -21,3 +21,5 @@ bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle && k
 bindsym XF86MonBrightnessDown exec --no-startup-id /usr/bin/xbacklight -dec 10
 bindsym XF86MonBrightnessUp exec --no-startup-id /usr/bin/xbacklight -inc 10
 
+# Additional kbd binding for laptop w/o scrolllock
+bindsym $mod+Home exec ~/tconf/scripts/kblayout.sh
