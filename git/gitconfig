@@ -1,8 +1,8 @@
 [core]
 	editor = emacs -nw -q --load \"$HOME/tconf/emacs/min-init.el\"
 [user]
-	name = Tim St. Clair
-	email = stclair@google.com
+	name = Tim Allclair
+	email = tallclair@google.com
 	signingkey = 0x5E6F2E2DA760AF51
 [color]
 	ui = true
