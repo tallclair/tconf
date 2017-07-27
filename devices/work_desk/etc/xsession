@@ -21,7 +21,7 @@ fi
 [[ -f $HOME/.Xresources ]] && xrdb -I$HOME/tconf -merge $HOME/.Xresources
 
 # Start ssh-agent and gpg-agent
-# ssh-agent > ${HOME}/.ssh-agent-info
+ssh-agent > ${HOME}/.ssh-agent-info
 gpg-agent --daemon --write-env-file ${HOME}/.gpg-agent-info > /dev/null
 
 xsetroot -solid "#101010" &

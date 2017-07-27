@@ -1,6 +1,6 @@
 # Start ssh-agent
 if [ -z "$SSH_AUTH_SOCK" ]; then
-    eval $(ssh-agent -s)
+   source ${HOME}/.ssh-agent-info
 fi
 
 # The next line updates PATH for the Google Cloud SDK.
