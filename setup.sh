@@ -27,6 +27,7 @@ hml gpg/gpg.conf .gnupg/gpg.conf
 
 # misc
 hml etc/tmux.conf .tmux.conf
+hml etc/gdbinit .gdbinit
 
 # Import local configs.
 [ -f $INPUT/local/$CONFIG ] && . $INPUT/local/$CONFIG
