@@ -67,6 +67,3 @@ done
 # Load local configs
 load "$TCONF/local/shell/bashrc"
 load "$TCONF/priv/shell/bashrc"
-
-# Ruby version manager
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting

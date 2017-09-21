@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Kubernetes
-alias k8s-e2e='go run hack/e2e.go -v'
+alias k8s-e2e='kubetest -v'
 alias k8s-make-e2e='make WHAT=test/e2e/e2e.test'
 function k8s-e2e-run() {
   if [[ $# == 0 ]]; then
-    go run hack/e2e.go -v -test $@
+    kubetest -v -test $@
   else
-    go run hack/e2e.go -v -test --test_args="--ginkgo.focus=${1// /\\s}" ${@:2}
+    kubetest -v -test --test_args="--ginkgo.focus=${1// /\\s}" ${@:2}
   fi
 }
 
