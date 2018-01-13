@@ -11,7 +11,7 @@ setxkbmap dvorak -option ctrl:nocaps
 if xinput list | grep -i touchpad > /dev/null; then
   # LAPTOP
   xrandr --output eDP1 --primary
-  $HOME/tconf/local/scripts/touchpad.sh # Configure touchpad
+  # $HOME/tconf/local/scripts/touchpad.sh # Configure touchpad
 else
   # DESKTOP
   xrandr --output DP-0 --primary

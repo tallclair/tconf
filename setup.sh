@@ -1,12 +1,13 @@
 #!/bin/bash
 
-TCONF=${TCONF:=$HOME/tconf}
+TCONF="${TCONF:=$HOME/tconf}"
 
 . $TCONF/lib/homemaker.sh || exit 1
 
-INPUT=$HOME/tconf
-OUTPUT=$HOME
-CONFIG=setup.sh
+BASE="$HOME/tconf"
+INPUT="$BASE"
+OUTPUT="$HOME"
+CONFIG="setup.sh"
 
 hm_init
 
@@ -30,7 +31,7 @@ hml etc/tmux.conf .tmux.conf
 hml etc/gdbinit .gdbinit
 
 # Import local configs.
-[ -f $INPUT/local/$CONFIG ] && . $INPUT/local/$CONFIG
-[ -f $INPUT/priv/$CONFIG ] && . $INPUT/priv/$CONFIG
+[ -f $BASE/local/$CONFIG ] && . $BASE/local/$CONFIG
+[ -f $BASE/priv/$CONFIG ] && . $BASE/priv/$CONFIG
 
 : # Clear command status

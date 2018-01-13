@@ -1,25 +1,19 @@
-# For audio to work
-exec --no-startup-id gnome-sound-applet
-#exec --no-startup-id emacs --daemon
-
 # Auto-lock screen
 exec --no-startup-id ~/tconf/local/scripts/autolock.sh
 
-# Network manager (for laptop wireless)
-exec --no-startup-id nm-applet
 # Googley stuff
 exec --no-startup-id /usr/share/goobuntu-indicator/goobuntu_indicator.py
 
 # Audio
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% && killall -SIGUSR1 i3status
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -- -5% && killall -SIGUSR1 i3status
-bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle && killall -SIGUSR1 i3status
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% && pkill -SIGUSR1 i3status
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5% && pkill -SIGUSR1 i3status
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle && pkill -SIGUSR1 i3status
 # Microphone mute
-bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle && killall -SIGUSR1 i3status
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle && pkill -SIGUSR1 i3status
 
 # Backlight
 bindsym XF86MonBrightnessDown exec --no-startup-id /usr/bin/xbacklight -dec 10
 bindsym XF86MonBrightnessUp exec --no-startup-id /usr/bin/xbacklight -inc 10
 
 # Additional kbd binding for laptop w/o scrolllock
-bindsym $mod+Home exec ~/tconf/scripts/kblayout.sh
+bindsym $mod+Home exec ~/tconf/scripts/kblayout.sh && pkill -SIGUSR1 i3status
