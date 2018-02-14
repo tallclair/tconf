@@ -1,5 +1,6 @@
 # Auto-lock screen
 exec --no-startup-id ~/tconf/local/scripts/autolock.sh
+exec --no-startup-id xss-lock -l -- i3lock
 
 # Googley stuff
 exec --no-startup-id /usr/share/goobuntu-indicator/goobuntu_indicator.py
