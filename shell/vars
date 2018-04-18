@@ -9,7 +9,7 @@ export TERMINAL='urxvt'
 
 export GITHUB_USER=timstclair
 
-export PATH="$PATH:$HOME/bin"
+export PATH="$HOME/bin:$PATH"
 
 # Go project directory
 export GOPATH=$HOME/go
