@@ -2,6 +2,10 @@
 exec --no-startup-id ~/tconf/local/scripts/autolock.sh
 exec --no-startup-id xss-lock -l -- i3lock -c 000000
 
+# Start cinnamon-settings daemons
+exec --no-startup-id /usr/lib/x86_64-linux-gnu/cinnamon-settings-daemon/csd-xrandr
+exec --no-startup-id /usr/lib/x86_64-linux-gnu/cinnamon-settings-daemon/csd-sound
+
 # Googley stuff
 exec --no-startup-id /usr/share/goobuntu-indicator/goobuntu_indicator.py
 
