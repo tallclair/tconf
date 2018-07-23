@@ -155,6 +155,10 @@
 (dolist (mode-file (directory-files (rel-path "modes") t ".*\.el?$"))
   (load mode-file))
 
+;; Load everything in the "custom" directory
+(dolist (mode-file (directory-files (rel-path "custom") t ".*\.el?$"))
+  (load mode-file))
+
 ;; From https://github.com/bbatsov/prelude/blob/master/modules/prelude-programming.el
 (defun font-lock-comment-annotations ()
   "Highlight comment annotations."
