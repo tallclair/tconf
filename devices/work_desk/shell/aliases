@@ -45,6 +45,14 @@ function gogo() {
   case $PROJECT in
     k8s*)
       PROJECT_DIR="$BASE/src/k8s.io/kubernetes"
+      # Change over path to new project.
+      local -r wild_project="${PROJECT_DIR//\/go\/k8s?\/src\//\/go\/k8s?\/src\/}"
+      local -r wild_pattern="${wild_project//\//\\\/}"
+      export PATH="${PATH//$wild_pattern/$PROJECT_DIR}"
+      # Add etcd to path if it's not already there.
+      if [[ ! $PATH =~ k8s.io/kubernetes/third_party/etcd ]]; then
+        export PATH="$PATH:$PROJECT_DIR/third_party/etcd"
+      fi
       ;;
     heapster)
       PROJECT_DIR="$BASE/src/k8s.io/heapster"
