@@ -62,4 +62,4 @@ git remote set-url --push upstream nopush
 
 # Add origin
 git remote add origin "git@github.com:${DST_ORG}/${DST_REPO}.git"
-get fetch origin
+git fetch origin
