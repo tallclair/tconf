@@ -6,6 +6,8 @@ Inspired in part by http://stackoverflow.com/a/21210882/1837431
 
 ## Set up
 
+### Chromium
+
 1. Go to chrome://extensions
 2. Select "Developer mode"
 3. Click on "Load unpacked extension"
