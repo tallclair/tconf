@@ -1,0 +1,28 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: IBIkgNlK3JLa+hQjgshpD0PzuczSoM2ddM8mzpUldYC0An45TP1RMchipnjRavNO17js3w/J5YQVQ3SOriXJ7EjhakZPk49TAdI+fq+N0wMaXxUmx8BUFD20+S+GWq/UifZsaZQp7nEthUfvxlSHW79ZJOO/3T3LbV1KwPfq/8pekRhMSxhypFVefrlvg40NTm3TP9Xnn/kw+G35mCDZylvi75RJB+wEsW2KtOoctICTg/pSvcCgmEDeNmw0U7WWtudfqPNt0yjCkz2G/Xslb6OHF8G2N5WtFUNYDcfdTBvBtbYzhrfqZqzrXBNvXY7Ak/n5gWAHRlTHtR1vq4wIpBpuB7GQeKMT1D1V8qk2pjJsB3oS2gOSg6J0GmWswuy7qmH6cY6fCSoeJ8Z14PbYRja9Dga+TBon76XsBo07jV57/7ZA8tNBSnxxw6apYn6OTpP1LMuNuaKKUB4MogW3rk1q6SSUmLqpiLfuUsXjM6Tdq+tcgqNkqFO4zJxlIe1nAbHLy3tguyo/dzWeqa92OdTXj26w/KSa6kh7xUtSfkgZTwGN8R4mmsbzRILxvdedUGTVGtwM/l8MypHmxekB55ac/yosuwdWwDsn3tcAguPRsJ6pTka22dsPc+mzyIbDKREs0LkZfzwO10UT/bDcQYaKJ/d7vRwuTnpVNXguD9+639dBagfNUJVvjbp8d2Rn3h7ax3DQp6Xwl0GTht6epsRD32YysWEzx7r7oUX0XtH0EBFPoBSe2OO+P2Z1BV5HVY4XkNVWW4BD4log607NF7xOkZy/de64OfWlguDK3Wq0XrzweFCb0gPBLyuWQrS7/k3La5M8OtUSixzCZDHjE2ZnTUJ98LvGhgjv/n8OzgqB+3lhtOaKG1Yf+YLLw+O/xUfxa8vyCp0BrJgmcv7CRTdUUwMMe0kXBz1jk7cqZixiWD7e4qHMW4DSK6+KELeb1MRnQfMwZMlhzxbPIFP4/z3Msmq8t/EBn0mAyz+G2IRZ1oq2Ecj8ZsYCM0f3Ep11VZI8N69ULFu6HY/6Isr2jzTO7SRYSnNLvD5JODA5l0OJWXXFAgg0sn/ljbrqyBpOd6neeufwDqqa/2pJSEr7IEbc0yczeK+l3OEcsNFp7uMI3/GczM0uMAi5tIqmGbV0Vnzgp0XwAqDXIrZJFnYqcF9FiRzqadANPyZNXu1tlIpZoZxpXO6NIh/5er6fCi+hW3dxzlnk/w0y4oQoVdgQvZ+8S60amWiDwde3vmL7bZ+DB3g4mIiHwnK2E2VMb0tnwGYBLtYXeMRJnHApqwMI43w+UDy+bm07pwK5aXUFe7cVv8vFxYEOtiz3q4OhVQQGycX69wRSvd/zSL2XxXKjmw==
+    server: https://203.0.113.12
+  name: gke_tallclair_us-central1-b_prod
+contexts:
+- context:
+    cluster: gke_tallclair_us-central1-b_prod
+    user: gke_tallclair_us-central1-b_prod
+  name: gke_tallclair_us-central1-b_prod
+current-context: gke_tallclair_us-central1-b_prod
+kind: Config
+preferences: {}
+users:
+- name: gke_tallclair_us-central1-b_prod
+  user:
+    auth-provider:
+      config:
+        cmd-args: config config-helper --format=json
+        cmd-path: /usr/lib/google-cloud-sdk/bin/gcloud
+        expiry-key: '{.credential.token_expiry}'
+        token-key: '{.credential.access_token}'
+      name: gcp
+- name: gke_tallclair_us-central1-b_prod
+  user:
+    password: iZDdLDe7v41o7UKJ
+    username: admin
