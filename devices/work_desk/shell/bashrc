@@ -24,3 +24,7 @@ source <(kubectl completion bash)
 if [ -d "$HOME/.cargo/bin" ]; then
    export PATH="$HOME/.cargo/bin:$PATH"
 fi
+
+if [ -d "/usr/local/kubebuilder/bin" ]; then
+   export PATH="/usr/local/kubebuilder/bin:$PATH"
+fi

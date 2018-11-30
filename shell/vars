@@ -7,7 +7,7 @@
 export EDITOR='emacs -nw -q --load $TCONF/emacs/min-init.el'
 export TERMINAL='urxvt'
 
-export GITHUB_USER=timstclair
+export GITHUB_USER=tallclair
 
 export PATH="$HOME/bin:$PATH"
 

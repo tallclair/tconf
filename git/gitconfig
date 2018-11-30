@@ -21,12 +21,13 @@
   squash = !__COMMIT_MSG=$(git log -n 1 --format=%B) && git reset --soft HEAD~1 && git commit -n -m \"$__COMMIT_MSG\"
   merge-clean = "!$HOME/tconf/git/git-merge-clean.sh"
   fork = "!$HOME/tconf/git/git-fork.sh"
+  current-branch = rev-parse --abbrev-ref HEAD
 [difftool "ediff"]
 	cmd = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el" --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
 [difftool "ediffclient"]
 	cmd = emacsclient --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
 [commit]
-	gpgsign = true
+  #	gpgsign = true
 [init]
 	templatedir = ~/.git-templates
 [http]
