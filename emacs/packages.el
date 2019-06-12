@@ -12,6 +12,7 @@
         company-go
         dash
         epl
+        exec-path-from-shell
         flycheck
         go-mode
         haskell-mode

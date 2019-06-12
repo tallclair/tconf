@@ -12,7 +12,6 @@ alias ediff="emacs -nw -q --load $TCONF/emacs/min-init.el -diff"
 
 # git
 alias git-root='git rev-parse 2>&1 >/dev/null && cd $(git rev-parse --show-cdup)'
-alias gits='git status' # fix typo
 alias git_nosign='git -c commit.gpgsign=false'
 alias gitns='git_nosign'
 alias git-stclair='git -c core.sshCommand="ssh -i ~/.ssh/gh_timstclair"'
@@ -32,3 +31,7 @@ fi
 
 # Go
 alias gag="ag -G '.*\.go$'"
+
+# Typos
+alias gits='git status'
+alias kubcetl='kubectl'

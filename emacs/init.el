@@ -22,6 +22,10 @@
 ;; UI styles
 (load (rel-path "style.el"))
 
+;; Grab $PATH from bash
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
 ;; Use spaces instead of tabs
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)

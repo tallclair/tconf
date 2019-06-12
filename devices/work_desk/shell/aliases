@@ -2,7 +2,7 @@
 
 # Kubernetes
 alias k8s-e2e='kubetest -v'
-alias k8s-make-e2e='make WHAT=test/e2e/e2e.test'
+alias k8s-make-e2e='bazel build //test/e2e:e2e.test_binary'
 function k8s-e2e-run() {
   if [[ $# == 0 ]]; then
     kubetest -v -test $@
@@ -51,7 +51,7 @@ function gogo() {
       export PATH="${PATH//$wild_pattern/$PROJECT_DIR}"
       # Add etcd to path if it's not already there.
       if [[ ! $PATH =~ k8s.io/kubernetes/third_party/etcd ]]; then
-        export PATH="$PATH:$PROJECT_DIR/third_party/etcd"
+        export PATH="$PROJECT_DIR/third_party/etcd:$PATH"
       fi
       ;;
     heapster)

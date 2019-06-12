@@ -26,5 +26,5 @@ if [ -d "$HOME/.cargo/bin" ]; then
 fi
 
 if [ -d "/usr/local/kubebuilder/bin" ]; then
-   export PATH="/usr/local/kubebuilder/bin:$PATH"
+   export PATH="$PATH:/usr/local/kubebuilder/bin"
 fi
