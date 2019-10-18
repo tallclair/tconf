@@ -67,6 +67,7 @@
 ;; Enable some disabled functions
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 
 ;; Use y-n instead of yes-no for prompts
 (defalias 'yes-or-no-p 'y-or-n-p)

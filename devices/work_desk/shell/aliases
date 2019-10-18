@@ -2,12 +2,12 @@
 
 # Kubernetes
 alias k8s-e2e='kubetest -v'
-alias k8s-make-e2e='bazel build //test/e2e:e2e.test_binary'
+alias k8s-make-e2e='bazel build //test/e2e:e2e.test_binary //vendor/github.com/onsi/ginkgo/ginkgo:ginkgo'
 function k8s-e2e-run() {
   if [[ $# == 0 ]]; then
-    kubetest -v -test $@
+    kubetest --check-version-skew=false --test $@
   else
-    kubetest -v -test --test_args="--ginkgo.focus=${1// /\\s}" ${@:2}
+    kubetest --check-version-skew=false --test --test_args="--ginkgo.focus=${1// /\\s}" ${@:2}
   fi
 }
 
