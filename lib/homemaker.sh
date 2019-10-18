@@ -38,6 +38,7 @@ hm_init() {
 
 # Shortcuts
 hml() { hm_link "$@"; }
+hmrol() { hm_readonly_link "$@"; }
 hmgl() { hm_generate_link "$@"; }
 
 # Check whether destination exists (and is not already the correct link)
@@ -73,6 +74,16 @@ hm_link() {
   fi
 
   ln -s "$SRC" "$DST"
+}
+
+# Copy the link target to $GEN_OUT and mark it readonly,
+# then link to the readonly target.
+hm_readonly_link() {
+  local SRC="$1"
+  local DST="$2"
+  local COMMENT="" # Reusing generate code.
+
+  hm_generate_link "$DST" "$COMMENT" "$SRC"
 }
 
 # Concatenate srcs into a file in $GEN_OUT
@@ -122,6 +133,13 @@ hm_generate() {
   local DST=$1
   local COMMENT=$2
   local SRCS=("${@:3}")
+
+  # Special case: single file with no generated comments -> just copy
+  if [[ -z "$COMMENT" ]] && [[ ${#SRCS[@]} == 1 ]]; then
+    cp -f "${SRCS[0]}" "$DST"
+    chmod 400 "$DST"
+    return
+  fi
 
   # Sanity check on comment designator length:
   if [[ ! "$COMMENT" =~ ^[^a-zA-Z0-9]{0,2}$ ]]; then

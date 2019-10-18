@@ -15,20 +15,20 @@ hm_init
 hmgl .i3/config "#" {,local/,priv/}i3/{config,win_rules,keys}
 
 # shell configuration
-hml shell/bashrc .bashrc
-hml shell/zshrc .zshrc
-hml Xresources/base .Xresources
+hmrol shell/bashrc .bashrc
+hmrol shell/zshrc .zshrc
+hmrol Xresources/base .Xresources
 
 # git configuration
-hml git/gitconfig .gitconfig
-hml git/gitignore .gitignore
+hmrol git/gitconfig .gitconfig
+hmrol git/gitignore .gitignore
 
 # gpg configuration
-hml gpg/gpg.conf .gnupg/gpg.conf
+hmrol gpg/gpg.conf .gnupg/gpg.conf
 
 # misc
-hml etc/tmux.conf .tmux.conf
-hml etc/gdbinit .gdbinit
+hmrol etc/tmux.conf .tmux.conf
+hmrol etc/gdbinit .gdbinit
 
 # Import local configs.
 [ -f $BASE/local/$CONFIG ] && . $BASE/local/$CONFIG

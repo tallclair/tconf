@@ -2,4 +2,4 @@
 
 INPUT=$TCONF/local
 
-hml etc/profile .profile
+hmrol etc/profile .profile
