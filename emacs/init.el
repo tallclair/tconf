@@ -174,13 +174,6 @@
 
 
 ;;
-;; Python settings
-;;
-
-(add-hook 'python-mode-hook 'flycheck-mode)
-
-
-;;
 ;; Haskell settings
 ;;
 
