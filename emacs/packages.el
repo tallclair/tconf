@@ -6,25 +6,28 @@
 
 ;; list the packages you want
 (setq package-list
-      '(
-        ag
-        company
-        company-go
-        dash
-        epl
-        exec-path-from-shell
-        flycheck
-        go-mode
-        haskell-mode
-        let-alist
-        pkg-info
-        popup
-        rich-minority
-        s
-        smart-mode-line
-        solarized-theme
-        use-package
-        ))
+  '(
+     ag
+     company
+     company-go
+     company-lsp
+     dash
+     epl
+     exec-path-from-shell
+     flycheck
+     go-mode
+     haskell-mode
+     let-alist
+     lsp-mode
+     lsp-ui
+     pkg-info
+     popup
+     rich-minority
+     s
+     smart-mode-line
+     solarized-theme
+     use-package
+     ))
 
 ;; list the repositories containing them
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")

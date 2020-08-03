@@ -203,10 +203,19 @@
 ;; haskell-mode
 ;; flycheck
 ;; flycheck-haskell
-;; go-mode
 
 
 ;; TODO: load local/emacs/init.el && priv/emacs/init.el
+
+;; (setq lsp-keymap-prefix "M-l")
+;; (require 'lsp-mode)
+;; (add-hook 'go-mode-hook #'lsp)
+
+(use-package lsp-mode
+  :ensure t
+  :init (setq lsp-keymap-prefix "M-l")
+  :hook (go-mode . lsp)
+  :commands lsp)
 
 ;; TODO: Migrate as much as possible to use-package
 (use-package company

@@ -12,6 +12,7 @@ git branch --merged "${UPSTREAM}/master" | grep -v '\*' | grep -v master | grep 
 # Special case cherry-picks
 for rel in $(git branch -r -l "${UPSTREAM}/release-*" | grep -Ev "/release-(0.*|1.[0123]$)"); do
   git checkout -B $(basename "$rel") "$rel"
+  sleep 1
   git branch --merged "$rel" | grep -v '\*' | grep -v $(basename "$rel") || true
 done
 
