@@ -1,0 +1,41 @@
+[core]
+	editor = emacs -nw -q --load \"$HOME/tconf/emacs/min-init.el\"
+[user]
+	name = Tim Allclair
+	email = timallclair@gmail.com
+	signingkey = 0x5E6F2E2DA760AF51
+	github = tallclair
+[color]
+	ui = true
+[alias]
+	b = branch
+	co = checkout
+	ediff = difftool -y --tool=ediff
+  last = log -n 1
+	mb = !git merge-base master $(git rev-parse --abbrev-ref HEAD)
+	pop = stash pop
+  stashq = -c commit.gpgsign=false stash
+	s = status
+	sb = status -sb
+	sync = "!$HOME/tconf/git/git-sync.sh"
+  squash = !__COMMIT_MSG=$(git log -n 1 --format=%B) && git reset --soft HEAD~1 && git commit -n -m \"$__COMMIT_MSG\"
+  merge-clean = "!$HOME/tconf/git/git-merge-clean.sh"
+  fork = "!$HOME/tconf/git/git-fork.sh"
+  current-branch = rev-parse --abbrev-ref HEAD
+[difftool "ediff"]
+	cmd = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el" --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
+[difftool "ediffclient"]
+	cmd = emacsclient --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
+[commit]
+  #	gpgsign = true
+[init]
+	templatedir = ~/.git-templates
+[http]
+	followRedirects = true
+	cookiefile = $HOME/.gitcookies
+[advice]
+	statusHints = false
+[diff]
+	renames = copies
+[push]
+	default = tracking
