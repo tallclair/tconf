@@ -46,6 +46,10 @@ if ! shopt -oq posix; then
   fi
   if [ -f /usr/share/git/completion/git-prompt.sh ]; then
     . /usr/share/git/completion/git-prompt.sh
+  elif [ -f /usr/local/etc/bash_completion.d/git-prompt.sh ]; then
+    . /usr/local/etc/bash_completion.d/git-prompt.sh
+  elif [ -f /opt/brew/opt/git/etc/bash_completion.d/git-prompt.sh ]; then
+    . /opt/brew/opt/git/etc/bash_completion.d/git-prompt.sh
   fi
 fi
 
