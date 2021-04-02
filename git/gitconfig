@@ -2,7 +2,7 @@
 	editor = emacs -nw -q --load \"$HOME/tconf/emacs/min-init.el\"
 [user]
 	name = Tim Allclair
-	email = timsstclair@gmail.com
+	email = timallclair@gmail.com
 	signingkey = 0x5E6F2E2DA760AF51
 	github = tallclair
 [color]
