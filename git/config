@@ -1,3 +1,5 @@
+# Main git config file
+
 [core]
 	editor = emacs -nw -q --load \"$HOME/tconf/emacs/min-init.el\"
 [user]
