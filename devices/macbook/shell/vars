@@ -1,4 +1,4 @@
 export DEVICE=macbook
 
 # homebrew setup
-export PATH=$HOME/homebrew/bin:$PATH:/usr/games/bin
+export PATH="$HOME/homebrew/bin:/opt/brew/bin:$PATH"

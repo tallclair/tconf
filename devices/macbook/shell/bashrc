@@ -1,3 +1,11 @@
 unalias ls  # Mac compatability fix
 
-source $HOME/homebrew/etc/bash_completion.d/git-prompt.sh
+# Kubernetes bash completions.
+source <(kubectl completion bash)
+
+[[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
+
+[[ -r "/opt/brew/etc/profile.d/bash_completion.sh" ]] && . "/opt/brew/etc/profile.d/bash_completion.sh"
+[[ -r "/opt/brew/Cellar/git/2.28.0/etc/bash_completion.d/git-completion.bash" ]] && . "/opt/brew/Cellar/git/2.28.0/etc/bash_completion.d/git-completion.bash"
+
+. "$TCONF/projects/kubernetes/etc/bashrc"
