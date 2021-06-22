@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Kubernetes
+alias k8s-e2e='kubetest -v'
+alias k8s-make-e2e='bazel build //test/e2e:e2e.test_binary //vendor/github.com/onsi/ginkgo/ginkgo:ginkgo'
+function k8s-e2e-run() {
+  if [[ $# == 0 ]]; then
+    kubetest --check-version-skew=false --test $@
+  else
+    kubetest --check-version-skew=false --test --test_args="--ginkgo.focus=${1// /\\s}" ${@:2}
+  fi
+}
+
+function k8s-node() {
+  # 0 is master, default to 1
+  INDEX=${1:-1}
+  kubectl get nodes -o=jsonpath="{.items[$INDEX].metadata.name}"
+}
+
+function k8s-node-zone() {
+  NODE=${1:-$(k8s-node)}
+  kubectl get node $NODE -o=go-template='{{index .metadata.labels "failure-domain.beta.kubernetes.io/zone"}}'
+}
+
+function k8s-node-proxy() {
+  if [[ $# == 0 ]]; then
+    NODE=$(k8s-node)
+  else
+    NODE=$1
+  fi
+  echo "localhost:8001/api/v1/proxy/nodes/$NODE:10250"
+}
+
+function k8s-node-ssh() {
+  NODE=${1:-$(k8s-node)}
+  ZONE=$(k8s-node-zone $NODE)
+  gcloud compute ssh --zone=$ZONE $NODE
+}
+
+# Grab log files
+function k8s-kubelet-log() {
+  NODE=${1:-$(k8s-node)}
+  ZONE=$(k8s-node-zone $NODE)
+  DATE="$(date +%y.%m.%d.%H%M)"
+  DST="$HOME/logs/kubelet_$NODE_${DATE}.log"
+  echo "Copying $NODE kubelet.log to $DST ..."
+  gcloud compute copy-files --zone=$ZONE "${NODE}:/var/log/kubelet.log" "$DST"
+}
+
+# Grep for a branch across k8s{1,2,3}
+function k8s-branch() {
+  pushd . > /dev/null
+  RESULT=1
+  for BR in k8s{1,2,3}; do
+    cd "$HOME/go/$BR/src/k8s.io/kubernetes"
+    git branch | awk "{print \"$BR:\", \$0}" | grep $*
+    RESULT=$((RESULT * $?))
+  done
+  popd > /dev/null
+  return $RESULT
+}
+
+# K8s deploy environment
+alias k8s-env='echo ${K8S_ENV:-default}'
+alias k8s-env-small='source $HOME/k8s/devel/config/config-small.sh && k8s-env'
+
+# Go aliases
+alias ago='ag --ignore "*_test.go" --ignore Godeps --ignore vendor -G ".*\.go$"'
+alias ago-test='ag --ignore Godeps -G ".*_test\.go$"'
+alias godep-test-dir='. $HOME/k8s/devel/scripts/godep-test-dir.sh'
+
+alias graph-png="dot -Tpng -o /tmp/graph.png && google-chrome /tmp/graph.png"
+alias graph-svg="dot -Tsvg -o /tmp/graph.svg && google-chrome /tmp/graph.svg"
