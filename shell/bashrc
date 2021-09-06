@@ -34,6 +34,10 @@ if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
   debian_chroot=$(cat /etc/debian_chroot)
 fi
 
+if [ -x /usr/libexec/path_helper ]; then
+	eval `/usr/libexec/path_helper -s`
+fi
+
 # enable programmable completion features
 if ! shopt -oq posix; then
   # UGH! This is so slow!

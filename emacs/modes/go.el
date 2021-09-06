@@ -53,9 +53,9 @@
 
 ;; company-lsp integrates company mode completion with lsp-mode.
 ;; completion-at-point also works out of the box but doesn't support snippets.
-(use-package company-lsp
-  :ensure t
-  :commands company-lsp)
+;; (use-package company-lsp
+;;   :ensure t
+;;   :commands company-lsp)
 
 ;; (lsp-register-custom-settings
 ;;  '(("gopls.staticcheck" t t)))

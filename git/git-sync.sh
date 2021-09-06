@@ -3,8 +3,6 @@
 REMOTE=${1:-upstream}
 BRANCH=${2:-}
 
-git fetch $REMOTE
-
 if [[ -z "$BRANCH" ]]; then
     if [[ ! -z "$(git branch -r --list ${REMOTE}/master)" ]]; then
         BRANCH=master
@@ -16,4 +14,5 @@ if [[ -z "$BRANCH" ]]; then
     fi
 fi
 
+git fetch $REMOTE $BRANCH
 git rebase $REMOTE/$BRANCH

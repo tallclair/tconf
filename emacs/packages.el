@@ -10,7 +10,6 @@
      ag
      company
      company-go
-     company-lsp
      dash
      epl
      exec-path-from-shell
