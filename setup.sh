@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 TCONF="${TCONF:=$HOME/tconf}"
 
 . $TCONF/lib/homemaker.sh || exit 1
@@ -12,7 +14,7 @@ CONFIG="setup.sh"
 hm_init
 
 # i3 configuration
-hmgl .i3/config "#" {,local/,priv/}i3/{config,win_rules,keys}
+hmrol i3/local_config .i3/config
 
 # shell configuration
 hmrol shell/bashrc .bashrc
@@ -29,6 +31,7 @@ hmrol gpg/gpg.conf .gnupg/gpg.conf
 # misc
 hmrol etc/tmux.conf .tmux.conf
 hmrol etc/gdbinit .gdbinit
+hmrol etc/inputrc  .inputrc
 
 # Import local configs.
 [ -f $BASE/local/$CONFIG ] && . $BASE/local/$CONFIG

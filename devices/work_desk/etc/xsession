@@ -5,10 +5,13 @@ export EDITOR="emacsclient"
 export TERMINAL="urxvt"
 export DESKTOP_SESSION=gnome
 
-setxkbmap dvorak -option ctrl:nocaps
+# Turn monitor off 30 seconds after locking
+export XSECURELOCK_BLANK_DPMS_STATE=off
+export XSECURELOCK_BLANK_TIMEOUT=30
 
-# HACK - if a touchpad is present, it's a laptop
-if xinput list | grep -i touchpad > /dev/null; then
+# setxkbmap dvorak -option ctrl:nocaps
+
+if [[ $(hostnamectl chassis) == "laptop" ]]; then
   # LAPTOP
   xrandr --output eDP1 --primary
   # $HOME/tconf/local/scripts/touchpad.sh # Configure touchpad
@@ -20,16 +23,16 @@ fi
 
 [[ -f $HOME/.Xresources ]] && xrdb -I$HOME/tconf -merge $HOME/.Xresources
 
-if ! pgrep -x "gpg-agent" > /dev/null; then
-   gpg-agent --daemon --write-env-file ${HOME}/.gpg-agent-info > /dev/null
-fi
-# Start ssh-agent if needed
-if ! pgrep -x "ssh-agent" > /dev/null; then
-  ssh-agent > ${HOME}/.ssh-agent-info
-  source ${HOME}/.ssh-agent-info
-else
-  rm ${HOME}/.ssh-agent-info
-fi
+# if ! pgrep -x "gpg-agent" > /dev/null; then
+#    gpg-agent --daemon --write-env-file ${HOME}/.gpg-agent-info > /dev/null
+# fi
+# # Start ssh-agent if needed
+# if ! pgrep -x "ssh-agent" > /dev/null; then
+#   ssh-agent > ${HOME}/.ssh-agent-info
+#   source ${HOME}/.ssh-agent-info
+# else
+#   rm ${HOME}/.ssh-agent-info
+# fi
 
 xsetroot -solid "#101010" &
 

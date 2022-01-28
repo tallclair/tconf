@@ -1,12 +1,16 @@
-# Auto-lock screen
-exec --no-startup-id xss-lock -l -- i3lock -c 000000
+# Lock Stuff
+bindsym $mod+Escape exec xset dpms force off && /usr/share/goobuntu-desktop-files/xsecurelock.sh
+exec --no-startup-id env LOCKED_BY_SESSION_IDLE=true xautolock -time 1 -locker /usr/share/goobuntu-desktop-files/xsecurelock.sh
 
 # Start cinnamon-settings daemons
 exec --no-startup-id /usr/lib/x86_64-linux-gnu/cinnamon-settings-daemon/csd-xrandr
 exec --no-startup-id /usr/lib/x86_64-linux-gnu/cinnamon-settings-daemon/csd-sound
 
 # Googley stuff
-exec --no-startup-id /usr/share/goobuntu-indicator/goobuntu_indicator.py
+#exec --no-startup-id /usr/share/goobuntu-indicator/goobuntu_indicator.py
+
+# Auto-start apps
+exec --no-startup-id dex -ae i3
 
 # Audio
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% && pkill -SIGUSR1 i3status
@@ -18,6 +22,3 @@ bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle && p
 # Backlight
 bindsym XF86MonBrightnessDown exec --no-startup-id /usr/bin/xbacklight -dec 10
 bindsym XF86MonBrightnessUp exec --no-startup-id /usr/bin/xbacklight -inc 10
-
-# Additional kbd binding for laptop w/o scrolllock
-bindsym $mod+Home exec ~/tconf/scripts/kblayout.sh && pkill -SIGUSR1 i3status

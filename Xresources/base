@@ -3,3 +3,4 @@
 #include "Xresources/font"
 #include "Xresources/urxvt"
 #include "themes/current-theme/Xresources"
+#include "local/etc/Xresources"

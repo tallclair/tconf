@@ -11,6 +11,9 @@
 (setq inhibit-splash-screen t)      ;; don't show splash screen
 (setq initial-scratch-message "")   ;; empty initial scratch buffer
 
+;; Suppress warnings I don't care about
+(add-to-list 'warning-suppress-log-types '(defvaralias losing-value))
+
 ;; Define some functions
 (defun rel-path (relative-path)  ;; TODO replace with (file-relative-name)
   "Return the full path of RELATIVE-PATH, relative to this function call."

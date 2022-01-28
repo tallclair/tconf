@@ -9,8 +9,8 @@
 (load-theme 'solarized-light t)
 
 ;; Customize solarized
-(solarized-with-color-variables 'light
-  (custom-theme-set-faces 'solarized-light
-    `(helm-ls-git-modified-not-staged-face ((,class (:foreground ,yellow))))
-    `(helm-source-header ((,class (:inherit header-line :weight bold))))
-  ))
+;;(solarized-with-color-variables 'light)
+  ;; (custom-theme-set-faces 'solarized-light
+  ;;   `(helm-ls-git-modified-not-staged-face ((,class (:foreground ,yellow))))
+  ;;   `(helm-source-header ((,class (:inherit header-line :weight bold))))
+  ;; ))
