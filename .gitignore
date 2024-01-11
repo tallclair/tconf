@@ -2,8 +2,9 @@
 local
 themes/current-theme
 
-# Private directory.
+# Private directories.
 priv
+secret
 
 # Generated files
 .gen_files

@@ -2,6 +2,7 @@
 
 # Kubernetes
 alias k8s-e2e='kubetest -v'
+alias k8s-run-e2e='make WHAT=test/e2e/e2e.test && KUBERNETES_CONFORMANCE_TEST=y hack/ginkgo-e2e.sh --ginkgo.focus'
 alias k8s-make-e2e='bazel build //test/e2e:e2e.test_binary //vendor/github.com/onsi/ginkgo/ginkgo:ginkgo'
 function k8s-e2e-run() {
   if [[ $# == 0 ]]; then
@@ -106,3 +107,8 @@ alias godep-test-dir='. $HOME/k8s/devel/scripts/godep-test-dir.sh'
 
 alias graph-png="dot -Tpng -o /tmp/graph.png && google-chrome /tmp/graph.png"
 alias graph-svg="dot -Tsvg -o /tmp/graph.svg && google-chrome /tmp/graph.svg"
+
+alias k-use-ns='kubectl config set-context --current --namespace'
+
+# Common typos
+alias kuebctl='kubectl'
