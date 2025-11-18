@@ -2,6 +2,7 @@
 if [[ -z "$SSH_CLIENT" ]] && [[ -z "$SSH_TTY" ]]; then
    # Only connect SSH agent if not running over SSH.
    eval $(keychain --eval --quiet --quick gh_tallclair)
+   eval $(keychain --eval --quiet --quick google_compute_engine)
 fi
 
 if [[ -e "${HOME}/.gpg-agent-info" ]]; then
@@ -20,6 +21,7 @@ fi
 
 # Kubernetes bash completions.
 source <(kubectl completion bash)
+source <(kind completion bash)
 
 if [ -d "$HOME/.cargo/bin" ]; then
    export PATH="$HOME/.cargo/bin:$PATH"
@@ -28,3 +30,6 @@ fi
 if [ -d "/usr/local/kubebuilder/bin" ]; then
    export PATH="$PATH:/usr/local/kubebuilder/bin"
 fi
+
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm

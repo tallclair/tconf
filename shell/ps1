@@ -61,36 +61,34 @@ function __user_host() {
   fi
 }
 
-# Project directory
-function __project() {
-  if [ "$__G_PROJECT_DIR" != "" ] && [[ "$PWD" =~ "$__G_PROJECT_DIR" ]]; then
-    echo -en "${__G_PROJECT}${PWD#$__G_PROJECT_DIR}"
-  else
-    echo -en "\w"
-  fi
-}
-
 function PS1_EXTRA() {
   # No-op placeholder: override in device-specific config
   :
 }
 
-local PS1_PREFIX="\[\$(__color_success)\][$TIME_VAR]\[$RESET\]\$(__user_host ' <' '>')\$(PS1_EXTRA)
 
-"
-local PS1_SUFFIX="\[$BOLD\]\$(__project): \[$RESET\]"
+		local new_line_link_top="╭"
+		local new_line_link_bottom="╰"
+
+PS1="\[\$(__color_success)\][$TIME_VAR]\[$RESET\]
+
+╭{ \$(__user_host ' <' '>:')\[$B_CYAN\]\w\[$RESET\]\$(__git_ps1)\$(PS1_EXTRA) \[$RESET\]}
+╰╴\[$BOLD\] "
+PS2="\[$RESET\] ╰\[$BOLD\] "
 
 # Set the terminal title.
 case "$TERM" in
 xterm*|*rxvt*)
-    PS1_SUFFIX="$PS1_SUFFIX\[\e]2;\$(__user_host '' ': ')\$(__project)\a\]"
+    PS1="$PS1\[\e]2;\$(__user_host '' ': ')\w\a\]"
     ;;
 *)
     ;;
 esac
 
+PS0="\[$RESET\]"
+
 # Use git promt
-PROMPT_COMMAND="__git_ps1 \"$PS1_PREFIX\" \"$PS1_SUFFIX\" \"[%s] \""
+#PROMPT_COMMAND="__git_ps1 \"$PS1_PREFIX\" \"$PS1_SUFFIX\" \"[%s] \""
 }
 
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then

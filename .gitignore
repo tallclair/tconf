@@ -11,3 +11,4 @@ secret
 
 # Mac specific
 **/.DS_Store
+.vscode

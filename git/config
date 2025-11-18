@@ -12,18 +12,20 @@
 [alias]
 	b = branch
 	co = checkout
+	current-branch = rev-parse --abbrev-ref HEAD
 	ediff = difftool -y --tool=ediff
-  last = log -n 1
+	fetch-gh = "!$HOME/tconf/git/git-fetch-gh.sh"
+	fork = "!$HOME/tconf/git/git-fork.sh"
+	ghpr = "!$HOME/tconf/git/git-ghpr.sh"
+	last = log -n 1
 	mb = !git merge-base master $(git rev-parse --abbrev-ref HEAD)
+	merge-clean = "!$HOME/tconf/git/git-merge-clean.sh"
 	pop = stash pop
-  stashq = -c commit.gpgsign=false stash
 	s = status
 	sb = status -sb
+	squash = !__COMMIT_MSG=$(git log -n 1 --format=%B) && git reset --soft HEAD~1 && git commit -n -m \"$__COMMIT_MSG\"
+	stashq = -c commit.gpgsign=false stash
 	sync = "!$HOME/tconf/git/git-sync.sh"
-  squash = !__COMMIT_MSG=$(git log -n 1 --format=%B) && git reset --soft HEAD~1 && git commit -n -m \"$__COMMIT_MSG\"
-  merge-clean = "!$HOME/tconf/git/git-merge-clean.sh"
-  fork = "!$HOME/tconf/git/git-fork.sh"
-  current-branch = rev-parse --abbrev-ref HEAD
 [difftool "ediff"]
 	cmd = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el" --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
 [difftool "ediffclient"]
@@ -41,3 +43,5 @@
 	renames = copies
 [push]
 	default = tracking
+[checkout]
+	defaultRemote=upstream

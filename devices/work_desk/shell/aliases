@@ -96,6 +96,33 @@ function k8s-branch() {
   return $RESULT
 }
 
+# Build Kubelet & update in-place on Kind
+function kind-update-kubelet() {
+  if ! grep -q '^module k8s.io/kubernetes$' go.mod; then
+    echo "Must be executed from Kubernetes root directory"
+    return 1
+  fi
+
+  if ! make WHAT="cmd/kubelet"; then
+    return 1
+  fi
+
+  KUBELET="_output/bin/kubelet"
+  if [ ! -x $KUBELET ]; then
+    echo "Kubelet binary not found at $KUBELET"
+    return 1
+  fi
+
+  for n in $(kind get nodes); do
+    docker cp ${KUBELET} $n:/usr/bin/kubelet && \
+      docker exec $n systemctl restart kubelet && \
+      echo "Updated kubelet on node $n" || echo "Failed to update kubelet on node $n"
+  done
+}
+alias kind-test-e2e='make WHAT="test/e2e/e2e.test" && ./_output/bin/e2e.test -context kind-kind -ginkgo.focus="${FOCUS// /\\s}" -num-nodes 2'
+alias kind-test-e2e-rerun='./_output/bin/e2e.test -context kind-kind -ginkgo.focus="${FOCUS// /\\s}" -num-nodes 2'
+alias kind-create-e2e-cluster='kind create cluster --config ${HOME}/src/github.com/tallclair/k8s-devel/config/kind-e2e-config.yaml --image kindest/node:latest'
+
 # K8s deploy environment
 alias k8s-env='echo ${K8S_ENV:-default}'
 alias k8s-env-small='source $HOME/k8s/devel/config/config-small.sh && k8s-env'

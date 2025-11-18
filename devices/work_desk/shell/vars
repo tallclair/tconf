@@ -4,3 +4,5 @@ export DEVICE_NAME=$DEVICE # Deprecated
 export BROWSER=google-chrome
 
 export TERM=xterm
+
+export KUBECONFIG="$HOME/.kube/config"

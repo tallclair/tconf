@@ -3,32 +3,27 @@
 set -euf
 
 UPSTREAM="${UPSTREAM:-upstream}"
-WORKING_BRANCH="$(git current-branch)"
-
-if [[ ! -z "$(git branch -r --list ${UPSTREAM}/master)" ]]; then
-    MAIN_BRANCH=master
-elif [[ ! -z "$(git branch -r --list ${UPSTREAM}/main)" ]]; then
-    MAIN_BRANCH=main
-else
-    >&2 echo "cannot determine main branch"
-    exit 1
-fi
-
 git fetch "${UPSTREAM}"
 
-git checkout -B ${MAIN_BRANCH} "${UPSTREAM}/${MAIN_BRANCH}"
-sleep 1
+MAIN_BRANCH="$(git remote show ${UPSTREAM} | sed -n '/HEAD branch/s/.*: //p')"
+
 
 # Delete merged branches, exclude current branch, master/main, and dev.
-git branch --merged "${UPSTREAM}/${MAIN_BRANCH}" | grep -v '\*' | grep -v "${WORKING_BRANCH}" | grep -v master | grep -v main | grep -v dev | xargs -r -n1 git branch -d
-sleep 1
+FILTER="^[*+]|master|main|dev|release-1.[0-9]*"
+
+clean-branch() {
+    BASE="$1"
+    echo "Checking $BASE..."
+    
+    if MERGED=($(git branch --merged "$BASE" | grep -Ev "$FILTER")); then
+        echo "Found merged branches: ${MERGED[8]}"
+        git branch -d "${MERGED[@]}"
+    fi
+}
+
+clean-branch "${UPSTREAM}/${MAIN_BRANCH}"
 
 # Special case cherry-picks
-for rel in $(git branch -r -l "${UPSTREAM}/release-*" | grep -E "/release-1.[1-9][0-9]$"); do
-  git checkout -B $(basename "$rel") "$rel"
-  sleep 1
-  git branch --merged "$rel" | grep -v '\*' | grep -v $(basename "$rel") | xargs -r -n1 git branch -d
-  sleep 1
-done
-
-git checkout "$WORKING_BRANCH"
+while read -r rel_branch; do
+  clean-branch $rel_branch
+done < <(git branch -r -l "${UPSTREAM}/release-1.[3-9][0-9]")
