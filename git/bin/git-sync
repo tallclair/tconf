@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+REMOTE="${1:-upstream}"
+BRANCH="${2:-}"
+
+# Fetch updates from the remote and prune deleted branches
+echo "Fetching from $REMOTE..."
+git fetch -p "$REMOTE"
+
+if [ -z "$BRANCH" ]; then
+    # Attempt to detect the default HEAD branch from the remote
+    BRANCH="$(git remote show "$REMOTE" | sed -n '/HEAD branch/s/.*: //p')"
+
+    # Fallback detection if 'remote show' fails or returns empty
+    if [ -z "$BRANCH" ]; then
+        if git rev-parse --verify --quiet "$REMOTE/main" >/dev/null; then
+            BRANCH="main"
+        elif git rev-parse --verify --quiet "$REMOTE/master" >/dev/null; then
+            BRANCH="master"
+        else
+            echo "Error: Cannot determine default branch for '$REMOTE'. Please specify it manually." >&2
+            exit 1
+        fi
+    fi
+fi
+
+echo "Rebasing current branch onto $REMOTE/$BRANCH..."
+git rebase --autostash "$REMOTE/$BRANCH"

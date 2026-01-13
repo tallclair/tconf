@@ -1,47 +1,61 @@
 # Main git config file
 
-[core]
-	editor = emacs -nw -q --load \"$HOME/tconf/emacs/min-init.el\"
 [user]
 	name = Tim Allclair
 	email = timallclair@gmail.com
 	signingkey = 0x5E6F2E2DA760AF51
-	github = tallclair
+
+[core]
+	editor = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el"
+
+[init]
+	templatedir = ~/.git-templates
+
 [color]
 	ui = true
+
+[advice]
+	statusHints = false
+
 [alias]
+	amend = commit --amend --no-edit
 	b = branch
 	co = checkout
 	current-branch = rev-parse --abbrev-ref HEAD
 	ediff = difftool -y --tool=ediff
-	fetch-gh = "!$HOME/tconf/git/git-fetch-gh.sh"
-	fork = "!$HOME/tconf/git/git-fork.sh"
-	ghpr = "!$HOME/tconf/git/git-ghpr.sh"
 	last = log -n 1
 	mb = !git merge-base master $(git rev-parse --abbrev-ref HEAD)
-	merge-clean = "!$HOME/tconf/git/git-merge-clean.sh"
 	pop = stash pop
 	s = status
 	sb = status -sb
-	squash = !__COMMIT_MSG=$(git log -n 1 --format=%B) && git reset --soft HEAD~1 && git commit -n -m \"$__COMMIT_MSG\"
+	start = !git fetch upstream && git checkout -b $1 upstream/master && :
 	stashq = -c commit.gpgsign=false stash
-	sync = "!$HOME/tconf/git/git-sync.sh"
+
+[diff]
+	renames = copies
+
 [difftool "ediff"]
-	cmd = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el" --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
+	cmd = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el" --eval "(ediff-files \"$LOCAL\" \"$REMOTE\")"
+
 [difftool "ediffclient"]
-	cmd = emacsclient --eval \"(ediff-files \\\"$LOCAL\\\" \\\"$REMOTE\\\")\"
+	cmd = emacsclient --eval "(ediff-files \"$LOCAL\" \"$REMOTE\")"
+
 [commit]
   #	gpgsign = true
-[init]
-	templatedir = ~/.git-templates
+
+[checkout]
+	defaultRemote=upstream
+
+[push]
+	default = current
+	autoSetupRemote = true
+
+[remote]
+	pushDefault = origin
+
 [http]
 	followRedirects = true
 	cookiefile = $HOME/.gitcookies
-[advice]
-	statusHints = false
-[diff]
-	renames = copies
-[push]
-	default = tracking
-[checkout]
-	defaultRemote=upstream
+
+[rerere]
+	enabled = true

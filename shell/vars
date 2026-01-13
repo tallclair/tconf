@@ -13,7 +13,9 @@ export PATH="$HOME/bin:$PATH"
 
 # Go project directory
 export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$PATH
+export PATH="$GOPATH/bin:$PATH"
 
 # Python setup
 export PATH="$HOME/.local/bin:$PATH"
+
+export PATH="$PATH:$TCONF/git/bin"

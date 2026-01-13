@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -euf
+
+UPSTREAM="${UPSTREAM:-upstream}"
+git fetch -p "${UPSTREAM}"
+
+MAIN_BRANCH="$(git remote show ${UPSTREAM} | sed -n '/HEAD branch/s/.*: //p')"
+
+if [ -z "$MAIN_BRANCH" ]; then
+    echo "Error: Could not determine HEAD branch for remote '${UPSTREAM}'." >&2
+    exit 1
+fi
+
+# Delete merged branches.
+# Exclude current branch (*), master, main, dev, and release branches.
+# Regex anchored to start/end of name to avoid partial matches.
+FILTER="^[*+]|^\s*(master|main|dev|release-1\.[0-9]+)$"
+
+clean-branch() {
+    BASE="$1"
+    echo "Checking branches merged into $BASE..."
+    
+    # List merged branches, filter out protected ones.
+    # '|| true' ensures grep failure (no matches) doesn't exit the script.
+    BRANCHES=$(git branch --merged "$BASE" | grep -Ev "$FILTER" || true)
+
+    if [ -n "$BRANCHES" ]; then
+        echo "Found merged branches to delete:"
+        echo "$BRANCHES"
+        # Use xargs to delete branches; -r prevents execution if input is empty.
+        echo "$BRANCHES" | xargs -r git branch -d
+    else
+        echo "No branches to clean."
+    fi
+}
+
+clean-branch "${UPSTREAM}/${MAIN_BRANCH}"
+
+# Special case cherry-picks
+while read -r rel_branch; do
+  clean-branch "$rel_branch"
+done < <(git branch -r -l "${UPSTREAM}/release-1.[3-9][0-9]")
