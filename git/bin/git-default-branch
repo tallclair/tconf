@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Default to 'upstream' if no remote is provided
+REMOTE="${1:-upstream}"
+
+# 1. FAST: Try to read local symbolic ref (refs/remotes/<remote>/HEAD)
+# This handles the most common case instantly without network.
+if DEFAULT_REF=$(git symbolic-ref refs/remotes/"$REMOTE"/HEAD 2>/dev/null); then
+    # Strip the prefix to output just the branch name (e.g., 'main')
+    echo "${DEFAULT_REF#refs/remotes/$REMOTE/}"
+    exit 0
+fi
+
+# 2. SLOW: Fallback to network if local ref is missing
+# We use stderr (>2) for the "Auto-detecting" message so it doesn't pollute the variable assignment in other scripts.
+echo "Auto-detecting default branch for '$REMOTE'..." >&2
+
+BRANCH=$(git remote show "$REMOTE" 2>/dev/null | awk '/HEAD branch/ {print $NF}')
+
+if [ -n "$BRANCH" ]; then
+    # 3. HEAL: Save this locally so next time is fast
+    git remote set-head "$REMOTE" "$BRANCH" > /dev/null 2>&1
+    echo "$BRANCH"
+    exit 0
+else
+    # Output error to stderr
+    echo "fatal: Could not determine default branch for remote '$REMOTE'" >&2
+    exit 1
+fi

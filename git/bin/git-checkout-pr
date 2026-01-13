@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+PR_ARG="$1"
+
+if [ -z "$PR_ARG" ]; then
+    echo "Usage: git checkout-pr <pr-number-or-url>"
+    exit 1
+fi
+
+# Check if 'gh' is installed
+if ! command -v gh &> /dev/null; then
+    echo "fatal: 'gh' (GitHub CLI) is not installed. Please install it first."
+    exit 1
+fi
+
+# --- 1. Fetch PR Details ---
+# We use --template to extract exactly what we need without relying on 'jq'
+# Format: number user branch
+echo "Fetching PR details..."
+read -r PR_NUM PR_USER PR_BRANCH <<< "$(gh pr view "$PR_ARG" --template '{{.number}} {{.author.login}} {{.headRefName}}')"
+
+if [ -z "$PR_NUM" ]; then
+    echo "fatal: Could not retrieve details for PR '$PR_ARG'."
+    exit 1
+fi
+
+# --- 2. Construct Branch Name ---
+# Format: pr/<user>/<number>-<branch>
+NEW_BRANCH_NAME="pr/${PR_USER}/${PR_NUM}-${PR_BRANCH}"
+
+# --- 3. Checkout ---
+echo "Checking out PR #$PR_NUM to local branch '$NEW_BRANCH_NAME'..."
+gh pr checkout "$PR_ARG" -b "$NEW_BRANCH_NAME"

@@ -1,0 +1,433 @@
+#!/bin/bash
+set -u
+
+# --- Configuration ---
+# Auto-detect remote if UPSTREAM is not set
+if [[ -z "${UPSTREAM:-}" ]]; then
+    if git remote | grep -q "^upstream$"; then
+        UPSTREAM="upstream"
+    elif git remote | grep -q "^origin$"; then
+        UPSTREAM="origin"
+    else
+        UPSTREAM="upstream"
+    fi
+fi
+
+# Regex for branches that are "valid destinations" (trunks).
+PROTECTED_PATTERN="^(master|main|dev|devel|development|trunk|release-.*)$"
+
+# Defaults
+DRY_RUN=false
+NON_INTERACTIVE=false
+SKIP_GH=false
+SKIPPED_WORKTREES=()
+
+# ANSI Colors
+GRAY='\033[2m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+NC='\033[0m' # No Color
+
+# --- Argument Parsing ---
+usage() {
+    echo "Usage: git cleanup [options]"
+    echo "Options:"
+    echo "  -y, --yes      Non-interactive mode (automatically confirm all prompts)."
+    echo "  -n, --dry-run  Print what would be done without deleting/modifying anything."
+    echo "  -s, --skip-gh  Skip slow GitHub PR status checks."
+    echo "  -h, --help     Show this help message."
+    exit 1
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -y|--yes) NON_INTERACTIVE=true ;; 
+        -n|--dry-run) DRY_RUN=true ;; 
+        -s|--skip-gh) SKIP_GH=true ;; 
+        -h|--help) usage ;; 
+        *) echo -e "${YELLOW}[WARN] Unknown parameter: $1${NC}"; usage ;; 
+    esac
+    shift
+done
+
+# --- Helpers ---
+
+SECTION_NUM=0
+section() {
+    ((SECTION_NUM++))
+    echo ""
+    echo "--- $SECTION_NUM. $1 ---"
+    echo ""
+}
+
+log() { echo -e "$@"; }
+debug() { echo -e "${GRAY}[DEBUG] $*${NC}"; }
+warn() { echo -e "${YELLOW}[WARN] $*${NC}"; }
+success() { echo -e "${GREEN}$*${NC}"; }
+
+confirm() {
+    local prompt="$1"
+    if [ "$NON_INTERACTIVE" = true ]; then
+        return 0
+    fi
+    # Use /dev/tty to ensure we read from user even if stdin is redirected
+    # However, keeping standard stdin allows 'yes | git cleanup'
+    read -r -p "$prompt [y/N] " response 
+    case "$response" in
+        [yY][eE][sS]|[yY]) return 0 ;; 
+        *) return 1 ;; 
+    esac
+}
+
+# Recursive Upstream Resolver
+resolve_ultimate_upstream() {
+    local branch="$1"
+    local depth=0
+    local max_depth=10
+    local current="$branch"
+
+    while [[ $depth -lt $max_depth ]]; do
+        local upstream
+        upstream=$(git rev-parse --symbolic-full-name "$current@{u}" 2>/dev/null)
+
+        # Fallback: If @{u} fails try manual config lookup
+        if [[ -z "$upstream" ]]; then
+            local remote
+            remote=$(git config branch."$current".remote)
+            local merge
+            merge=$(git config branch."$current".merge)
+
+            if [[ -n "$remote" && -n "$merge" ]]; then
+                if [[ "$remote" == "." ]]; then
+                    upstream="$merge"
+                else
+                    local short_merge="${merge#refs/heads/}"
+                    local candidate="refs/remotes/$remote/$short_merge"
+                    if git rev-parse --verify "$candidate" >/dev/null 2>&1; then
+                        upstream="$candidate"
+                    fi
+                fi
+            fi
+        fi
+
+        if [[ -z "$upstream" ]]; then break; fi
+
+        # If it points to a remote branch, we are done
+        if [[ "$upstream" == refs/remotes/* ]]; then
+            echo "$upstream"
+            return 0
+        fi
+
+        # If it points to another local branch, recurse
+        if [[ "$upstream" == refs/heads/* ]]; then
+            current="${upstream#refs/heads/}"
+            ((depth++))
+            continue
+        fi
+        break
+    done
+    echo ""
+}
+
+# Map of branches checked out in ANY worktree
+declare -A WORKTREE_BRANCHES
+load_worktrees() {
+    debug "Scanning worktrees..."
+    local current_path=""
+    while read -r line; do
+        if [[ "$line" =~ ^worktree\ (.*) ]]; then
+            current_path="${BASH_REMATCH[1]}"
+        elif [[ "$line" =~ ^branch\ refs/heads/(.*) ]]; then
+            local branch_name="${BASH_REMATCH[1]}"
+            WORKTREE_BRANCHES["$branch_name"]="$current_path"
+        fi
+    done < <(git worktree list --porcelain)
+}
+
+delete_branch() {
+    local branch="$1"
+    local reason="$2"
+    local force="${3:-false}"
+
+    if [[ -n "${WORKTREE_BRANCHES[$branch]-}" ]]; then
+        local wt_path="${WORKTREE_BRANCHES[$branch]}"
+        # Collect for consolidated output
+        SKIPPED_WORKTREES+=("  - $branch ($wt_path)")
+        return
+    fi
+
+    if [[ "$DRY_RUN" = true ]]; then
+        log "[DRY RUN] Would delete '$branch' ($reason)"
+    else
+        local cmd="git branch -d"
+        [ "$force" = true ] && cmd="git branch -D"
+        
+        local output
+        if output=$($cmd "$branch" 2>&1); then
+            success "Deleted '$branch' ($reason)"
+        else
+            warn "Failed to delete '$branch':"
+            log "$output"
+        fi
+    fi
+}
+
+# --- Main Logic ---
+
+# 0. Setup
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: Not a git repository."
+    exit 1
+fi
+
+load_worktrees
+
+log "Fetching $UPSTREAM..."
+if ! git fetch -p "$UPSTREAM" 2>/dev/null; then
+    warn "Failed to fetch from '$UPSTREAM'. Check your remote settings."
+fi
+
+# Ensure git-default-branch is available or fallback
+if command -v git-default-branch >/dev/null; then
+    MAIN_BRANCH="$(git default-branch "$UPSTREAM")"
+else
+    # Fallback if helper is missing
+    MAIN_BRANCH="main"
+    warn "git-default-branch not found, assuming '$MAIN_BRANCH'"
+fi
+
+DEFAULT_TARGET="refs/remotes/$UPSTREAM/$MAIN_BRANCH"
+
+# Get all candidates (local branches excluding protected patterns)
+CANDIDATES=$(git branch --format='%(refname:short)' | grep -Ev "$PROTECTED_PATTERN")
+
+# 1. Detect Untracked Branches
+section "Upstream Configuration"
+UNTRACKED_BRANCHES=()
+declare -A TARGET_GROUPS
+declare -A PROCESSED
+
+for branch in $CANDIDATES; do
+    target=$(resolve_ultimate_upstream "$branch")
+    
+    if [[ -z "$target" ]]; then
+        # It's truly untracked (or tracks a local branch with no upstream)
+        UNTRACKED_BRANCHES+=("$branch")
+        target="$DEFAULT_TARGET"
+    else
+        # Safety check for non-trunk tracking
+        # We target the merge check to Main if the upstream is not protected
+        if [[ ! "$target" =~ $PROTECTED_PATTERN ]]; then
+             target="$DEFAULT_TARGET"
+        fi
+    fi
+    
+    TARGET_GROUPS["$target"]+="$branch "
+done
+
+if [ ${#UNTRACKED_BRANCHES[@]} -gt 0 ]; then
+    log "Found ${#UNTRACKED_BRANCHES[@]} branches with no upstream tracking:"
+    for b in "${UNTRACKED_BRANCHES[@]}"; do log "  - $b"; done
+    
+    if confirm "Set these to track ${DEFAULT_TARGET#refs/remotes/}?"; then
+        for b in "${UNTRACKED_BRANCHES[@]}"; do
+            if [[ "$DRY_RUN" = true ]]; then
+                log "[DRY RUN] Would set upstream for '$b'"
+            else
+                git branch -u "${DEFAULT_TARGET#refs/remotes/}" "$b" >/dev/null
+                success "Updated '$b'"
+            fi
+        done
+    else
+        log "Skipping upstream configuration."
+    fi
+else
+    success "All branches have valid tracking targets."
+fi
+
+
+# 2. Strict Merge Cleanup
+section "Strict Merge Cleanup"
+MERGED_COUNT=0
+for target in "${!TARGET_GROUPS[@]}"; do
+    branches_in_group="${TARGET_GROUPS[$target]}"
+    
+    # Check if target exists
+    if ! git rev-parse --verify "$target" >/dev/null 2>&1; then
+        # Silent skip if target doesn't exist (e.g. stale remote branch)
+        continue
+    fi
+
+    # Filter: branches strictly merged into their target
+    # -F for fixed strings, -x for exact match
+    merged_output=$(git branch --merged "$target" | sed 's/^[*+] //')
+    
+    for branch in $branches_in_group; do
+        if echo "$merged_output" | grep -Fqx "$branch"; then
+            delete_branch "$branch" "Merged into ${target#refs/remotes/}"
+            PROCESSED["$branch"]=1
+            ((MERGED_COUNT++))
+        fi
+    done
+done
+
+if [ "$MERGED_COUNT" -eq 0 ]; then
+    log "No strictly merged branches found."
+fi
+
+if [ ${#SKIPPED_WORKTREES[@]} -gt 0 ]; then
+    warn "The following branches are eligible for deletion but are checked out:"
+    for entry in "${SKIPPED_WORKTREES[@]}"; do
+        log "$entry"
+    done
+    SKIPPED_WORKTREES=()
+fi
+
+# 3. PR State Cleanup (Squash/Closed)
+section "PR State Cleanup"
+
+if [[ "$SKIP_GH" = true ]]; then
+    log "Skipping PR status check (requested)."
+elif ! command -v gh &> /dev/null; then
+    warn "Skipping PR status check ('gh' CLI not found)."
+else
+    # Only scan branches that haven't been processed yet
+    CHECK_LIST=()
+    for branch in $CANDIDATES; do
+        if [[ -z "${PROCESSED[$branch]-}" ]]; then
+            CHECK_LIST+=("$branch")
+        fi
+    done
+
+    TOTAL=${#CHECK_LIST[@]}
+    if [ "$TOTAL" -gt 0 ]; then
+        PR_DELETE_CANDIDATES=()
+        declare -A PR_REASONS
+        declare -A PR_URLS
+        declare -A PR_STATES
+        CURRENT=0
+        
+        # Hide cursor
+        printf "\033[?25l"
+
+        for branch in "${CHECK_LIST[@]}"; do
+            CURRENT=$((CURRENT + 1))
+            
+            # Progress Indicator
+            printf "\r\033[KChecking GitHub status... [%d/%d] %s" "$CURRENT" "$TOTAL" "$branch"
+            
+            pr_number=""
+            pr_url=""
+            state=""
+
+            # 1. Try to parse ID from branch name (e.g., branch-name/123 or 123-branch)
+            if [[ "$branch" =~ pr/[^/]+/([0-9]+) ]] || [[ "$branch" =~ ^([0-9]+)- ]]; then
+                pr_number="${BASH_REMATCH[1]}"
+            fi
+
+            # 2. Fetch details (State + URL)
+            if [[ -n "$pr_number" ]]; then
+                read -r state pr_url <<< "$(gh pr view "$pr_number" --json state,url --jq '.state + " " + .url' 2>/dev/null || true)"
+            else
+                # Limits to 1 result.
+                read -r pr_number state pr_url <<< "$(gh pr list --head "$branch" --state all --json number,state,url --jq '.[0] | "\(.number) \(.state) \(.url)"' 2>/dev/null || true)"
+            fi
+
+            if [[ "$state" == "null" ]]; then state=""; fi
+
+            if [[ "$state" == "MERGED" || "$state" == "CLOSED" ]]; then
+                PR_DELETE_CANDIDATES+=("$branch")
+                PR_REASONS["$branch"]="PR #$pr_number is $state"
+                PR_URLS["$branch"]="$pr_url"
+                PR_STATES["$branch"]="$state"
+            fi
+        done
+        
+        # Show cursor and clear line
+        printf "\033[?25h"
+        echo -ne "\r\033[K"
+
+        if [ ${#PR_DELETE_CANDIDATES[@]} -gt 0 ]; then
+            MERGED_LIST=()
+            CLOSED_LIST=()
+            
+            for b in "${PR_DELETE_CANDIDATES[@]}"; do
+                if [[ "${PR_STATES[$b]}" == "MERGED" ]]; then
+                    MERGED_LIST+=("$b")
+                else
+                    CLOSED_LIST+=("$b")
+                fi
+            done
+
+            if [ ${#MERGED_LIST[@]} -gt 0 ]; then
+                log "Merged PRs:"
+                for b in "${MERGED_LIST[@]}"; do
+                    log "  - $b ${GRAY}(${PR_URLS[$b]})${NC}"
+                done
+            fi
+
+            if [ ${#CLOSED_LIST[@]} -gt 0 ]; then
+                if [ ${#MERGED_LIST[@]} -gt 0 ]; then echo ""; fi
+                log "Closed PRs:"
+                for b in "${CLOSED_LIST[@]}"; do
+                    log "  - $b ${GRAY}(${PR_URLS[$b]})${NC}"
+                done
+            fi
+            echo ""
+
+            if confirm "Delete these branches?"; then
+                for b in "${PR_DELETE_CANDIDATES[@]}"; do
+                    delete_branch "$b" "${PR_REASONS[$b]}" "true" # force delete
+                    PROCESSED["$b"]=1
+                done
+
+                if [ ${#SKIPPED_WORKTREES[@]} -gt 0 ]; then
+                    warn "The following branches are checked out and were not deleted:"
+                    for entry in "${SKIPPED_WORKTREES[@]}"; do
+                        log "$entry"
+                    done
+                    SKIPPED_WORKTREES=()
+                fi
+            else
+                log "Skipping PR cleanup."
+            fi
+        else
+            log "No additional PR branches to clean."
+        fi
+    fi
+fi
+
+# 4. Detect Duplicates
+section "Duplicate Branches"
+
+HAS_DUPLICATES=false
+# Use git for-each-ref with explicit separator to handle branch names with spaces safely
+while IFS= read -r line; do
+    HAS_DUPLICATES=true
+    log "$line"
+done < <(git for-each-ref --format='%(objectname) %(refname:short)' refs/heads |
+    sort |
+    awk '
+    {
+        hash = $1
+        $1 = ""
+        # Remove leading space left by $1
+        branch = substr($0, 2)
+        
+        if (hash == last_hash) {
+            if (count == 0) { 
+                printf "Commit %s:\n  - %s\n", last_hash, last_branch 
+            }
+            printf "  - %s\n", branch
+            count++
+        } else {
+            if (count > 0) printf "\n"
+            last_hash = hash
+            last_branch = branch
+            count = 0
+        }
+    }')
+
+if [ "$HAS_DUPLICATES" = false ]; then
+    success "No duplicate branches found."
+fi

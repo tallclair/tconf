@@ -5,12 +5,7 @@ set -euf
 UPSTREAM="${UPSTREAM:-upstream}"
 git fetch -p "${UPSTREAM}"
 
-MAIN_BRANCH="$(git remote show ${UPSTREAM} | sed -n '/HEAD branch/s/.*: //p')"
-
-if [ -z "$MAIN_BRANCH" ]; then
-    echo "Error: Could not determine HEAD branch for remote '${UPSTREAM}'." >&2
-    exit 1
-fi
+MAIN_BRANCH="$(git default-branch ${UPSTREAM})"
 
 # Delete merged branches.
 # Exclude current branch (*), master, main, dev, and release branches.

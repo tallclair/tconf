@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+
+# --- 1. Safety Check ---
+if ! git diff-index --quiet HEAD --; then
+    echo "fatal: Working directory is not clean. Commit or stash changes first."
+    exit 1
+fi
+
+BRANCH_NAME="$1"
+INPUT_TARGET="$2"
+
+if [ -z "$BRANCH_NAME" ]; then
+    echo "Usage: git start <new-branch-name> [base-branch]"
+    exit 1
+fi
+
+# --- 2. Determine Target Remote/Branch ---
+
+if [ -z "$INPUT_TARGET" ]; then
+    # Case A: No target. Use helper to find default on 'upstream'.
+    REMOTE="upstream"
+    BRANCH=$(git default-branch "$REMOTE")
+    TARGET="$REMOTE/$BRANCH"
+
+elif [[ "$INPUT_TARGET" != *"/"* ]]; then
+    # Case B: Target without slash. Use 'upstream'.
+    REMOTE="upstream"
+    BRANCH="$INPUT_TARGET"
+    TARGET="$REMOTE/$BRANCH"
+
+else
+    # Case C: Full target provided.
+    REMOTE="${INPUT_TARGET%%/*}"
+    BRANCH="${INPUT_TARGET#*/}"
+    TARGET="$INPUT_TARGET"
+fi
+
+# --- 3. Execution ---
+
+git fetch "$REMOTE" "$BRANCH"
+git checkout -b "$BRANCH_NAME" FETCH_HEAD
+git branch -u "$TARGET"
