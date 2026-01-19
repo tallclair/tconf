@@ -1,9 +1,0 @@
-# List of configuration files to generate, and their inputs
-# See scripts/gen-config.sh
-
-.Xresources ! Xresources/
-
-# Order matters
-.bashrc # bash/bashrc bash/vars bash/
-
-.i3/config # i3/config
