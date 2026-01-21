@@ -1,0 +1,4 @@
+#!/bin/bash
+# Prints the absolute path of the root directory of the current git repository.
+
+git rev-parse --show-toplevel

@@ -20,6 +20,7 @@ hmrol i3/local_config .i3/config
 hmrol shell/bashrc .bashrc
 hmrol shell/zshrc .zshrc
 hmrol Xresources/base .Xresources
+hmrol shell/fish/config.fish .config/fish/config.fish
 
 # git configuration
 hmrol git/gitconfig .gitconfig

@@ -1,0 +1,102 @@
+# 1. Structure: Scaffolding & Two-Line Layout
+# separator = "[ │ ](separator)"
+format = """\
+[// ](separator dimmed)\
+($username$hostname[:](separator))\
+$directory\
+([ // ](separator dimmed)$git_branch$git_status( $git_state))\
+([ // ](separator dimmed)${env_var.STARSHIP_EXTRA})\
+([ // ](separator dimmed)$status)\
+$fill($cmd_duration) $time
+[> ](command bold)"""
+
+# format = """\
+# [╭╢ ](frame)\
+# ($username$hostname[:](separator))\
+# $directory\
+# ([ // ](separator dimmed)$git_branch$git_status)\
+# [ ║](frame)\
+# $status\
+# $fill($cmd_duration) $time
+# [╰╼ ](frame)"""
+
+add_newline = true
+command_timeout = 500
+
+palette = "dark"
+[palettes.dark]
+separator = "white"
+frame = "white"
+command = "bright-white"
+directory = "blue"
+git = "purple"
+userhost = "yellow"
+
+[time]
+disabled = false
+format = '[\[$time\]]($style)'
+time_format = "%T"
+style = "white dimmed"
+
+[directory]
+style = "directory"
+before_repo_root_style = "directory dimmed"
+repo_root_style = "directory"
+read_only = "🔒"
+truncation_length = 5
+truncate_to_repo = false
+truncation_symbol = '…/'
+
+format = "[$path]($style)[$read_only]($read_only_style)"
+repo_root_format = """\
+[$before_root_path]($before_repo_root_style)\
+[$repo_root]($repo_root_style)\
+[$path]($style)[$read_only]($read_only_style)"""
+
+[git_branch]
+symbol = " "
+style = "git"
+format = "[$symbol$branch]($style)"
+
+[git_status]
+ignore_submodules = true
+stashed = ""
+deleted = "x"
+modified = "!"
+staged = "+"
+untracked = "?"
+renamed = "~"
+style = "git"
+format = "([ $all_status]($style bold))"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\)'
+
+[username]
+style_user = "userhost bold"
+show_always = false
+format = "[$user]($style)@"
+
+[hostname]
+style = "userhost bold"
+ssh_only = true
+format = "[$hostname]($style)"
+
+[fill]
+symbol = " "
+
+[status]
+disabled = false
+style = "red bold"
+success_symbol = ""
+format = '[E:$status]($style)'
+
+[cmd_duration]
+min_time = 2000
+style = "yellow"
+format = ' [\($duration\)]($style)'
+
+[env_var.STARSHIP_EXTRA]
+description = "Miscellaneous environment variable to add arbitrary extra info."
+style = "yellow"
+format = "[$env_value]($style)"

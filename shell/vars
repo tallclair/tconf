@@ -20,3 +20,5 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Add tconf bin paths
 export PATH="$PATH:$TCONF/bin:$TCONF/git/bin:$TCONF/local/bin"
+
+export STARSHIP_CONFIG="$TCONF/etc/starship.toml"

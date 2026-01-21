@@ -93,7 +93,11 @@ PS0="\[$RESET\]"
 
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
   # Color prompt
-  fancy_prompt
+  # fancy_prompt
+
+  # Use starship for prompt
+  eval "$(starship init bash)"
+
 else
   # Boring prompt
   PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
