@@ -1,0 +1,92 @@
+#!/bin/bash
+set -euo pipefail
+
+# go-test
+# Description:
+#   A wrapper for 'gotestsum' that allows running tests on specific subsets of
+#   files based on their git status.
+#
+# Arguments:
+#   -s, --staged       Run tests for packages containing staged .go files.
+#   -c, --changed      Run tests for packages containing .go files that have 
+#                      changed compared to a branch (default: upstream/master).
+#                      Usage: go-test -c [branch_name]
+#   -r, --recursive    If set, appends '/...' to package paths to run tests 
+#                      recursively in subdirectories.
+#   [args...]          Any other arguments are passed directly to gotestsum.
+#
+# Examples:
+#   go-test -s                  # Test staged packages
+#   go-test -c -r               # Recursive test on all changes vs upstream/master
+#   go-test -c main             # Test changes vs 'main' branch
+#   go-test -count=1 ./pkg/...  # Standard manual usage
+
+mode=""
+recursive=false
+target_branch="upstream/master"
+pass_through_args=()
+
+# --- 1. Argument Parsing ---
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--staged)
+      mode="staged"
+      shift
+      ;;
+    -c|--changed)
+      mode="changed"
+      shift
+      # Check if the next argument is a branch name (and not another flag)
+      if [[ -n "$1" && "$1" != -* ]]; then
+        target_branch="$1"
+        shift
+      fi
+      ;;
+    -r|--recursive)
+      recursive=true
+      shift
+      ;;
+    *)
+      # Collect unknown args to pass to gotestsum (e.g., -v, -run)
+      pass_through_args+=("$1")
+      shift
+      ;;
+  esac
+done
+
+# --- 2. Identify Changed Files ---
+changed_files=""
+
+if [[ "$mode" == "staged" ]]; then
+  changed_files=$(git diff --name-only --cached | grep '\.go$')
+elif [[ "$mode" == "changed" ]]; then
+  changed_files=$(git diff --name-only "$target_branch" | grep '\.go$')
+fi
+
+# If a mode was selected but no .go files changed, exit early
+if [[ -n "$mode" && -z "$changed_files" ]]; then
+  echo "No .go files found in $mode changes."
+  exit 0
+fi
+
+# --- 3. Convert Files to Package Paths ---
+pkg_list=""
+
+# Only process directories if we actually found files (or if no mode was set)
+if [[ -n "$changed_files" ]]; then
+  # Get dirnames, unique them, and format as relative paths (./path)
+  pkg_list=$(echo "$changed_files" | xargs dirname | sort -u | sed 's|^|./|')
+  
+  # Apply recursive flag if requested
+  if [ "$recursive" = true ]; then
+    pkg_list=$(echo "$pkg_list" | sed 's|$|/...|')
+  fi
+fi
+
+# --- 4. Execution ---
+# If pkg_list is empty here, we are in "standard" mode (no -s or -c flags),
+# so we don't pass any paths, letting go test run in the current dir.
+
+# We use tr to replace newlines with spaces so the shell sees them as separate args
+gotestsum --format=pkgname-and-test-fails --format-icons=hivis -- \
+          "${pass_through_args[@]}" $(echo "$pkg_list" | tr '\n' ' ')

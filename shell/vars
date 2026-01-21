@@ -18,4 +18,5 @@ export PATH="$GOPATH/bin:$PATH"
 # Python setup
 export PATH="$HOME/.local/bin:$PATH"
 
-export PATH="$PATH:$TCONF/git/bin"
+# Add tconf bin paths
+export PATH="$PATH:$TCONF/bin:$TCONF/git/bin:$TCONF/local/bin"
