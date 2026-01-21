@@ -4,14 +4,6 @@
 alias k8s-e2e='kubetest -v'
 alias k8s-run-e2e='make WHAT=test/e2e/e2e.test && KUBERNETES_CONFORMANCE_TEST=y hack/ginkgo-e2e.sh --ginkgo.focus'
 alias k8s-make-e2e='bazel build //test/e2e:e2e.test_binary //vendor/github.com/onsi/ginkgo/ginkgo:ginkgo'
-function k8s-e2e-run() {
-  if [[ $# == 0 ]]; then
-    kubetest --check-version-skew=false --test $@
-  else
-    kubetest --check-version-skew=false --test --test_args="--ginkgo.focus=${1// /\\s}" ${@:2}
-  fi
-}
-
 function k8s-node() {
   # 0 is master, default to 1
   INDEX=${1:-1}
@@ -97,28 +89,7 @@ function k8s-branch() {
 }
 
 # Build Kubelet & update in-place on Kind
-function kind-update-kubelet() {
-  if ! grep -q '^module k8s.io/kubernetes$' go.mod; then
-    echo "Must be executed from Kubernetes root directory"
-    return 1
-  fi
 
-  if ! make WHAT="cmd/kubelet"; then
-    return 1
-  fi
-
-  KUBELET="_output/bin/kubelet"
-  if [ ! -x $KUBELET ]; then
-    echo "Kubelet binary not found at $KUBELET"
-    return 1
-  fi
-
-  for n in $(kind get nodes); do
-    docker cp ${KUBELET} $n:/usr/bin/kubelet && \
-      docker exec $n systemctl restart kubelet && \
-      echo "Updated kubelet on node $n" || echo "Failed to update kubelet on node $n"
-  done
-}
 alias kind-test-e2e='make WHAT="test/e2e/e2e.test" && ./_output/bin/e2e.test -context kind-kind -ginkgo.focus="${FOCUS// /\\s}" -num-nodes 2'
 alias kind-test-e2e-rerun='./_output/bin/e2e.test -context kind-kind -ginkgo.focus="${FOCUS// /\\s}" -num-nodes 2'
 alias kind-create-e2e-cluster='kind create cluster --config ${HOME}/src/github.com/tallclair/k8s-devel/config/kind-e2e-config.yaml --image kindest/node:latest'

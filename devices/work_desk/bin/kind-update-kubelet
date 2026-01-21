@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+# kind-update-kubelet
+# Description:
+#   Builds the Kubelet binary from the current source and updates it in-place
+#   on all running Kind (Kubernetes in Docker) nodes.
+
+if ! grep -q '^module k8s.io/kubernetes$' go.mod; then
+  echo "Must be executed from Kubernetes root directory"
+  exit 1
+fi
+
+if ! make WHAT="cmd/kubelet"; then
+  exit 1
+fi
+
+KUBELET="_output/bin/kubelet"
+if [ ! -x "$KUBELET" ]; then
+  echo "Kubelet binary not found at $KUBELET"
+  exit 1
+fi
+
+# Get nodes first to fail early if kind is not running or not found
+NODES=$(kind get nodes)
+
+for n in $NODES; do
+  if docker cp "${KUBELET}" "$n:/usr/bin/kubelet" && \
+     docker exec "$n" systemctl restart kubelet; then
+    echo "Updated kubelet on node $n"
+  else
+    echo "Failed to update kubelet on node $n"
+    # Don't exit immediately on one node failure, try others? 
+    # Or strict fail? The original function used || echo "Failed..." so it continued.
+    # With set -e, a command returning non-zero causes exit.
+    # To preserve original behavior (continue loop), we need to ensure the condition is handled.
+    # The 'if' handles the exit code, so set -e won't trigger if docker fails here.
+    true
+  fi
+done

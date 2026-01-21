@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+# k8s-e2e-run
+# Description:
+#   Wrapper for kubetest to run e2e tests.
+#   Usage: k8s-e2e-run [focus_regex] [other_args...]
+
+if [[ $# -eq 0 ]]; then
+  kubetest --check-version-skew=false --test "$@"
+else
+  # Replace spaces with \s in the focus string (first argument)
+  FOCUS="${1// /\s}"
+  
+  # Construct the test args. 
+  # Note: ${@:2} expands to all arguments starting from the second one.
+  kubetest --check-version-skew=false --test --test_args="--ginkgo.focus=$FOCUS" "${@:2}"
+fi
+
