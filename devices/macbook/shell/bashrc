@@ -1,11 +1,19 @@
 unalias ls  # Mac compatability fix
 
-# Kubernetes bash completions.
-source <(kubectl completion bash)
+if command -v brew &> /dev/null; then
+    eval "$(brew shellenv)"
+fi
+
+if command -v kubectl &> /dev/null; then
+    # Kubernetes bash completions.
+    source <(kubectl completion bash)
+    . "$TCONF/projects/kubernetes/etc/bashrc"
+fi
 
 [[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
 
-[[ -r "/opt/brew/etc/profile.d/bash_completion.sh" ]] && . "/opt/brew/etc/profile.d/bash_completion.sh"
-[[ -r "/opt/brew/Cellar/git/2.28.0/etc/bash_completion.d/git-completion.bash" ]] && . "/opt/brew/Cellar/git/2.28.0/etc/bash_completion.d/git-completion.bash"
+[[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
 
-. "$TCONF/projects/kubernetes/etc/bashrc"
+# export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
+/usr/bin/ssh-add --apple-load-keychain -q

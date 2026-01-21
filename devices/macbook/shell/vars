@@ -1,4 +1,4 @@
 export DEVICE=macbook
 
 # homebrew setup
-export PATH="$HOME/homebrew/bin:/opt/brew/bin:$PATH"
+export PATH="$HOME/homebrew/bin:/opt/brew/bin:$PATH:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/"
