@@ -103,27 +103,50 @@ hm_generate_link() {
 
   local GEN_DST="$GEN_OUT/${DST//\//.}"
 
-  if ! hm_has_changes "$GEN_DST"; then
-    # No changes, nothing to do.
-    hm_link "$GEN_DST" "$DST" || return 1
-  fi
-
   # Filter SRCS
-  local SOURCES=
-  for SRC in "${SRCS[@]}"; do
+  local SOURCES=()
+  for SRC in "${SRCS[@]+"${SRCS[@]}"}"; do
     # Make SRC absolute.
     if [ "${SRC:0:1}" != "/" ]; then
       SRC=$INPUT/$SRC
     fi
 
     for FILE in $SRC; do  # Expand wildcards
-      if [ -e "$FILE" ] && [[ ! $SOURCES =~ $FILE ]]; then
-        SOURCES="$SOURCES $FILE"
+      if [ -e "$FILE" ]; then
+        local found=false
+        for s in "${SOURCES[@]+"${SOURCES[@]}"}"; do
+          if [[ "$s" == "$FILE" ]]; then
+            found=true
+            break
+          fi
+        done
+        if [[ "$found" == "false" ]]; then
+          SOURCES+=("$FILE")
+        fi
       fi
     done
   done
 
-  hm_generate "$GEN_DST" "$COMMENT" $SOURCES
+  local UPDATE_NEEDED=false
+  if [ ! -f "$GEN_DST" ]; then
+    UPDATE_NEEDED=true
+  elif [ ${#SOURCES[@]} -gt 0 ]; then
+    if hm_has_changes "$GEN_DST" "${SOURCES[@]}"; then
+      UPDATE_NEEDED=true
+    fi
+  fi
+
+  if [ "$UPDATE_NEEDED" == "false" ]; then
+    # No changes, nothing to do.
+    hm_link "$GEN_DST" "$DST" || return 1
+    return 0
+  fi
+
+  if [ ${#SOURCES[@]} -gt 0 ]; then
+    hm_generate "$GEN_DST" "$COMMENT" "${SOURCES[@]}"
+  else
+    hm_generate "$GEN_DST" "$COMMENT"
+  fi
   hm_link "$GEN_DST" "$DST"
 }
 
@@ -148,14 +171,14 @@ hm_generate() {
   fi
 
   # Temporarily enable write
-  chmod 600 "$DST"
+  [ -e "$DST" ] && chmod 600 "$DST"
 
   # Clear file
   > "$DST"
 
-  hm_file_header "$COMMENT" "${SRCS[@]}" >> "$DST"
+  hm_file_header "$COMMENT" "${SRCS[@]+"${SRCS[@]}"}" >> "$DST"
 
-  for SRC in ${SRCS[@]}; do
+  for SRC in ${SRCS[@]+"${SRCS[@]}"}; do
     hm_sect_header "$COMMENT" "$SRC" >> "$DST"
     cat "$SRC" >> "$DST"
   done
@@ -175,7 +198,7 @@ hm_file_header() {
 
   echo "$COMMENT AUTOMATICALLY GENERATED FILE - DO NOT EDIT"
   echo "$COMMENT Sources:"
-  for SRC in "${SRCS[@]}"; do
+  for SRC in "${SRCS[@]+"${SRCS[@]}"}"; do
     echo "$COMMENT   $SRC"
   done
 }
@@ -215,7 +238,7 @@ hm_has_changes() {
   fi
 
   local CREATE_TIME=$(hm_modtime "$DST")
-  for SRC in "${SRCS[@]}"; do
+  for SRC in "${SRCS[@]+"${SRCS[@]}"}"; do
     local MOD_TIME=$(hm_modtime "$SRC")
     if (( MOD_TIME > CREATE_TIME )); then
       return 0

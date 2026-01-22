@@ -253,4 +253,4 @@ bar {
 
 include ~/tconf/i3/win_rules
 include ~/tconf/local/i3/config
-include ~/tocnf/priv/i3/config
+include ~/tconf/priv/i3/config
