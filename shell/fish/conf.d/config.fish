@@ -10,3 +10,9 @@ if status is-interactive
     # Optional: If you want arguments bold as well (e.g., 'commit', 'filename')
     # set -g fish_color_param --bold
 end
+
+function fish_greeting
+    set_color -d white
+    printf "// %s • Week %s • fish-shell\n" (date "+%A, %b %d") (date "+%V")
+    set_color normal
+end
