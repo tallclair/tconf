@@ -2,8 +2,8 @@
 # separator = "[ │ ](separator)"
 format = """\
 [// ](separator dimmed)\
-($username$hostname[:](separator))\
-$directory\
+($username${env_var.REMOTE_ALIAS}[:](separator dimmed))\
+$directory( ${env_var.SHPOOL_SESSION_NAME})\
 ([ // ](separator dimmed)$git_branch$git_status( $git_state))\
 ([ // ](separator dimmed)${env_var.STARSHIP_EXTRA})\
 ([ // ](separator dimmed)$status)\
@@ -29,8 +29,9 @@ separator = "white"
 frame = "white"
 command = "bright-white"
 directory = "blue"
+directory-faded = "bright-blue"
 git = "purple"
-userhost = "yellow"
+userhost = "cyan"
 
 [time]
 disabled = false
@@ -40,7 +41,7 @@ style = "white dimmed"
 
 [directory]
 style = "directory"
-before_repo_root_style = "directory dimmed"
+before_repo_root_style = "directory-faded"
 repo_root_style = "directory"
 read_only = "🔒"
 truncation_length = 5
@@ -81,6 +82,7 @@ format = "[$user]($style)@"
 style = "userhost bold"
 ssh_only = true
 format = "[$hostname]($style)"
+disabled = true
 
 [fill]
 symbol = " "
@@ -100,3 +102,13 @@ format = ' [\($duration\)]($style)'
 description = "Miscellaneous environment variable to add arbitrary extra info."
 style = "yellow"
 format = "[$env_value]($style)"
+
+[env_var.REMOTE_ALIAS]
+description = "Display name for remote machine."
+style = "userhost"
+format = "[$env_value]($style)"
+
+[env_var.SHPOOL_SESSION_NAME]
+description = "shpoool session name"
+style = "white"
+format = '[\($env_value\)]($style)'

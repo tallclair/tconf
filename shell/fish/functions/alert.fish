@@ -1,4 +1,4 @@
-function alert --description 'Notify when a command is done'
+function alert -d 'Notify when a command is done'
     set -l last_status $status
     set -l cmd $argv
     set -l title "Task Finished"

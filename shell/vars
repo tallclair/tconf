@@ -22,3 +22,10 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:$TCONF/bin:$TCONF/git/bin:$TCONF/local/bin"
 
 export STARSHIP_CONFIG="$TCONF/etc/starship.toml"
+
+# Set REMOTE_ALIAS fallback
+if [ -z "$REMOTE_ALIAS" ]; then
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_CONNECTION" ] || { [ -z "$XDG_VTNR" ] && [ -z "$DISPLAY" ]; }; then
+        export REMOTE_ALIAS="$(hostname)"
+    fi
+fi

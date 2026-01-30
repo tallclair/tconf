@@ -1,0 +1,2 @@
+# Don't prefix the prompt.
+prompt_prefix = ""

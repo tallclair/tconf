@@ -33,6 +33,7 @@ hmrol gpg/gpg.conf .gnupg/gpg.conf
 hmrol etc/tmux.conf .tmux.conf
 hmrol etc/gdbinit .gdbinit
 hmrol etc/inputrc  .inputrc
+hmrol etc/shpool.toml .config/shpool/config.toml
 
 # Import local configs.
 [ -f $BASE/local/$CONFIG ] && . $BASE/local/$CONFIG

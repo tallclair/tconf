@@ -11,7 +11,7 @@ if status is-interactive
     # set -g fish_color_param --bold
 end
 
-function fish_greeting
+function fish_greeting -d 'Display startup greeting'
     set_color -d white
     printf "// %s • Week %s • fish-shell\n" (date "+%A, %b %d") (date "+%V")
     set_color normal

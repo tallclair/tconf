@@ -5,7 +5,7 @@
 alias uuid='cat /dev/urandom | tr -dc a-z0-9 | head -c 32; echo'
 alias xcp='xclip -selection clipboard'
 
-function timestamp
+function timestamp -d 'Prepend timestamp to each line of input'
     while read -l line
         echo -e (date +"%H:%M:%S.%3N")"	 $line"
     end

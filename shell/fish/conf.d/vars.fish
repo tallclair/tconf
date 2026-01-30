@@ -16,3 +16,9 @@ fish_add_path --path --prepend $GOPATH/bin
 
 fish_add_path --path --prepend $HOME/.local/bin
 fish_add_path --path --append $TCONF/git/bin
+
+if not set -q REMOTE_ALIAS
+    if set -q SSH_CLIENT; or set -q SSH_CONNECTION; or begin test -z "$XDG_VTNR"; and test -z "$DISPLAY"; end
+        set -gx REMOTE_ALIAS (hostname)
+    end
+end
