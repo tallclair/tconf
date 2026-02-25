@@ -4,7 +4,9 @@ if not set -q TCONF
     set -gx TCONF $HOME/tconf
 end
 
-if type -q zed
+if type -q micro
+    set -gx EDITOR micro
+else if type -q zed
     set -gx EDITOR "zed -w"
 end
 

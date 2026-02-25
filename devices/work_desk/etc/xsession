@@ -1,7 +1,7 @@
 # Xsession configuration
 
 export ALTERNATE_EDITOR=""
-export EDITOR="emacsclient"
+export EDITOR="micro"
 export TERMINAL="urxvt"
 export DESKTOP_SESSION=gnome
 
