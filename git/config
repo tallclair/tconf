@@ -4,6 +4,7 @@
 	name = Tim Allclair
 	email = timallclair@gmail.com
 	signingkey = 0x5E6F2E2DA760AF51
+	github = tallclair
 
 [core]
 	editor = emacs -nw -q --load "$HOME/tconf/emacs/min-init.el"

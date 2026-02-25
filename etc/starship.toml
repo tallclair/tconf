@@ -69,6 +69,7 @@ untracked = "?"
 renamed = "~"
 style = "git"
 format = "([ $all_status]($style bold))"
+disabled = true
 
 [git_state]
 format = '\([$state( $progress_current/$progress_total)]($style)\)'

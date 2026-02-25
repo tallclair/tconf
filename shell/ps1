@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Custom PS1
-
+# DEPRECATED: Now using starship instead.
 fancy_prompt() {
 
 # Dynamic variables
@@ -92,12 +91,13 @@ PS0="\[$RESET\]"
 }
 
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-  # Color prompt
-  # fancy_prompt
 
-  # Use starship for prompt
-  eval "$(starship init bash)"
-
+  if command -v starship &>/dev/null; then
+    # Use starship for prompt
+    eval "$(starship init bash)"
+  else
+    fancy_prompt
+  fi
 else
   # Boring prompt
   PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '

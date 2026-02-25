@@ -17,7 +17,7 @@ hm_init
 hmrol i3/local_config .i3/config
 
 # shell configuration
-hmrol shell/bashrc .bashrc
+hmrol shell/local_bashrc .bashrc
 hmrol shell/zshrc .zshrc
 hmrol Xresources/base .Xresources
 hmrol shell/fish/config.fish .config/fish/config.fish

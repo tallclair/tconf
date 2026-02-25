@@ -4,7 +4,10 @@ if not set -q TCONF
     set -gx TCONF $HOME/tconf
 end
 
-set -gx EDITOR "zed"
+if type -q zed
+    set -gx EDITOR "zed -w"
+end
+
 set -gx GITHUB_USER tallclair
 set -gx STARSHIP_CONFIG $TCONF/etc/starship.toml
 
@@ -16,6 +19,13 @@ fish_add_path --path --prepend $GOPATH/bin
 
 fish_add_path --path --prepend $HOME/.local/bin
 fish_add_path --path --append $TCONF/git/bin
+
+for layer in "" local priv
+    set -l BINPATH "$TCONF/$layer/bin"
+    if test -d "$BINPATH"
+        fish_add_path --path --append "$BINPATH"
+    end
+end
 
 if not set -q REMOTE_ALIAS
     if set -q SSH_CLIENT; or set -q SSH_CONNECTION; or begin test -z "$XDG_VTNR"; and test -z "$DISPLAY"; end
