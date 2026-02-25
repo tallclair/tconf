@@ -4,9 +4,14 @@ email = "timallclair@gmail.com"
 
 [ui]
 editor = ["micro"]
+merge-editor = ":builtin"
+
+[revset-aliases]
+'closest_bookmark(to)' = 'heads(::to & bookmarks())'
 
 [aliases]
 s = ["status"]
+tug = ["bookmark", "move", "--from", "closest_bookmark(@)", "--to", "@"]
 
 # For your custom 'start' shell script, we escape to the shell via `util exec`
 # start = ["util", "exec", "--", "bash", "-c", "git fetch upstream && git checkout -b \"$1\" upstream/master", ""]

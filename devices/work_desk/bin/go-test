@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]; do
       mode="changed"
       shift
       # Check if the next argument is a branch name (and not another flag)
-      if [[ -n "$1" && "$1" != -* ]]; then
+      if [[ -n "${1:-}" && "${1:-}" != -* ]]; then
         target_branch="$1"
         shift
       fi
@@ -58,9 +58,9 @@ done
 changed_files=""
 
 if [[ "$mode" == "staged" ]]; then
-  changed_files=$(git diff --name-only --cached | grep '\.go$')
+  changed_files=$(git diff --name-only --cached | grep '\.go$' || true)
 elif [[ "$mode" == "changed" ]]; then
-  changed_files=$(git diff --name-only "$target_branch" | grep '\.go$')
+  changed_files=$(git diff --name-only "$target_branch" | grep '\.go$' || true)
 fi
 
 # If a mode was selected but no .go files changed, exit early

@@ -4,7 +4,7 @@ format = """\
 [// ](separator dimmed)\
 ($username${env_var.REMOTE_ALIAS}[:](separator dimmed))\
 $directory( ${env_var.SHPOOL_SESSION_NAME})\
-([ // ](separator dimmed)$git_branch$git_status( $git_state))\
+([ // ](separator dimmed)${custom.jj}${custom.git})\
 ([ // ](separator dimmed)${env_var.STARSHIP_EXTRA})\
 ([ // ](separator dimmed)$status)\
 $fill($cmd_duration) $time
@@ -54,10 +54,14 @@ repo_root_format = """\
 [$repo_root]($repo_root_style)\
 [$path]($style)[$read_only]($read_only_style)"""
 
+# Note: this is used by custom.git even though it isn't in the main format string.
 [git_branch]
 symbol = " "
 style = "git"
 format = "[$symbol$branch]($style)"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\)'
 
 [git_status]
 ignore_submodules = true
@@ -71,8 +75,22 @@ style = "git"
 format = "([ $all_status]($style bold))"
 disabled = true
 
-[git_state]
-format = '\([$state( $progress_current/$progress_total)]($style)\)'
+[custom.jj]
+description = "Jujutsu Status"
+# Only run this module if we are inside a jj repository
+when = "jj root"
+# Format the output to look like: " main xyz12 (empty)"
+command = '''jj log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, " 💥") ++ if(empty, " (empty)")' '''
+style = "git"
+format = "[$output]($style)"
+
+[custom.git]
+description = "Git Status (Disabled in JJ repos)"
+# Run if in a git repo AND NOT in a jj repo
+when = 'git rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! jj root >/dev/null 2>&1'
+# Call starship's native modules directly for branch and state
+command = 'printf "%s%s" "$(starship module git_branch)" "$(starship module git_state)"'
+format = "$output"
 
 [username]
 style_user = "userhost bold"
