@@ -26,6 +26,8 @@ hmrol shell/fish/config.fish .config/fish/config.fish
 hmrol git/gitconfig .gitconfig
 hmrol git/gitignore .gitignore
 
+hml jj/config.toml .config/jj/conf.d/00-config.toml
+
 # gpg configuration
 hmrol gpg/gpg.conf .gnupg/gpg.conf
 
