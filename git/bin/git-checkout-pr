@@ -18,7 +18,7 @@ fi
 # We use --template to extract exactly what we need without relying on 'jq'
 # Format: number user branch
 echo "Fetching PR details..."
-read -r PR_NUM PR_USER PR_BRANCH <<< "$(gh pr view "$PR_ARG" --template '{{.number}} {{.author.login}} {{.headRefName}}')"
+read -r PR_NUM PR_USER PR_BRANCH <<< "$(gh pr view "$PR_ARG" --json number,author,headRefName --template '{{.number}} {{.author.login}} {{.headRefName}}')"
 
 if [ -z "$PR_NUM" ]; then
     echo "fatal: Could not retrieve details for PR '$PR_ARG'."

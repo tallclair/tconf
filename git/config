@@ -22,6 +22,7 @@
 	amend = commit --amend --no-edit
 	b = branch
 	co = checkout
+	copr = checkout-pr
 	current-branch = rev-parse --abbrev-ref HEAD
 	ediff = difftool -y --tool=ediff
 	last = log -n 1
