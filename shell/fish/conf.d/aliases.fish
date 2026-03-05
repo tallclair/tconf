@@ -21,5 +21,6 @@ abbr -a gag "ag -G '.*\.go\$'"
 
 # Common typos (maintained as abbreviations for auto-correction)
 abbr -a gits 'git status'
+abbr -a jjs 'jj status'
 abbr -a kubcetl 'kubectl'
 abbr -a kuebctl 'kubectl'

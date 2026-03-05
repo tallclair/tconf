@@ -8,6 +8,7 @@ merge-editor = ":builtin"
 
 [revset-aliases]
 'closest_bookmark(to)' = 'heads(::to & bookmarks())'
+"immutable_heads()" = "trunk() | tags() | remote_bookmarks(upstream)"
 
 [aliases]
 s = ["status"]
