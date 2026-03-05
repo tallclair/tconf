@@ -57,10 +57,25 @@ done
 # --- 2. Identify Changed Files ---
 changed_files=""
 
-if [[ "$mode" == "staged" ]]; then
-  changed_files=$(git diff --name-only --cached | grep '\.go$' || true)
-elif [[ "$mode" == "changed" ]]; then
-  changed_files=$(git diff --name-only "$target_branch" | grep '\.go$' || true)
+# Detect repo type (prioritize jj if available)
+if jj root >/dev/null 2>&1; then
+  if [[ "$mode" == "staged" ]]; then
+    echo "Error: staged changes are not a concept in jj. Try running with -c instead." >&2
+    exit 1
+  elif [[ "$mode" == "changed" ]]; then
+    # Translate git-style remote/branch to jj-style branch@remote
+    if [[ "$target_branch" == *"/"* ]]; then
+      target_branch="${target_branch#*/}@${target_branch%/*}"
+    fi
+    # In jj, we compare the current revision (@) against the target branch
+    changed_files=$(jj diff --name-only -r "$target_branch..@" | grep '\.go$' || true)
+  fi
+elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [[ "$mode" == "staged" ]]; then
+    changed_files=$(git diff --name-only --cached | grep '\.go$' || true)
+  elif [[ "$mode" == "changed" ]]; then
+    changed_files=$(git diff --name-only "$target_branch" | grep '\.go$' || true)
+  fi
 fi
 
 # If a mode was selected but no .go files changed, exit early

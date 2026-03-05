@@ -31,6 +31,12 @@ hml jj/config.toml .config/jj/conf.d/00-config.toml
 # gpg configuration
 hmrol gpg/gpg.conf .gnupg/gpg.conf
 
+# gemini-cli
+hml gemini/policy.toml .gemini/policies/policy.toml
+
+# micro editor
+hml micro/bindings.json .config/micro/bindings.json
+
 # misc
 hmrol etc/tmux.conf .tmux.conf
 hmrol etc/gdbinit .gdbinit

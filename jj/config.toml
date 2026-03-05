@@ -5,6 +5,10 @@ email = "timallclair@gmail.com"
 [ui]
 editor = ["micro"]
 merge-editor = ":builtin"
+conflict-marker-style = "git"
+
+[colors]
+red = "red"
 
 [revset-aliases]
 'closest_bookmark(to)' = 'heads(::to & bookmarks())'

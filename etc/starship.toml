@@ -80,7 +80,8 @@ description = "Jujutsu Status"
 # Only run this module if we are inside a jj repository
 when = "jj root"
 # Format the output to look like: " main xyz12 (empty)"
-command = '''jj log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, " 💥") ++ if(empty, " (empty)")' '''
+command = '''jj --color=always log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, label("red", " (conflict)")) ++ if(empty, " (empty)")' '''
+#command = '''jj log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, " [\\\\(conflict\\\\)](red)") ++ if(empty, " (empty)")' '''
 style = "git"
 format = "[$output]($style)"
 

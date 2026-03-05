@@ -1,0 +1,118 @@
+# Catch destructive or mutating Git operations and ask for confirmation.
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "git branch -D"
+  "git cherry-pick",
+  "git clean",
+  "git commit",
+  "git filter-branch",
+  "git filter-repo",
+  "git merge",
+  "git push",
+  "git rebase",
+  "git reset",
+  "git rm",
+  "git stash",
+]
+decision = "ask_user"
+priority = 500
+
+# Catch destructive GitHub CLI (gh) operations and ask for confirmation.
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "gh pr merge",
+  "gh release delete"
+  "gh repo delete",
+  "gh secret delete",
+]
+decision = "deny"
+priority = 500
+
+# Catch any redirections (>, <) or command chaining (;, &, ||) and require manual approval.
+[[rule]]
+toolName = "run_shell_command"
+argsPattern = '.*([<>;&]|\|\|).*'
+decision = "ask_user"
+priority = 200
+
+# Auto-approve safe read-only standard shell commands.
+[[rule]]
+name = "Utils: Allow safe read-only shell commands"
+toolName = "run_shell_command"
+commandPrefix = [
+  "awk",
+  "cat",
+  "date",
+  "echo",
+  "find",
+  "grep",
+  "head",
+  "hostname",
+  "ls",
+  "man",
+  "pwd",
+  "rg",
+  "sed",
+  "sort",
+  "stat",
+  "tail",
+  "tree",
+  "uname",
+  "uniq",
+  "wc",
+  "which"
+]
+decision = "allow"
+priority = 100
+allow_redirection = true
+
+# Auto-approve safe write shell commands.
+[[rule]]
+name = "Utils: Allow safe write commands"
+toolName = "run_shell_command"
+commandPrefix = [
+	"mkdir"
+]
+
+# Auto-approve safe read-only Version Control & GitHub inspection.
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  # git
+  "git diff",
+  "git log",
+  "git remote",
+  "git show",
+  "git status",
+  
+  # hg
+  "hg diff",
+  "hg log",
+  "hg status",
+  
+  # jj
+  "jj diff",
+  "jj log",
+  "jj status",
+  
+  # gh
+  "gh api"
+  "gh auth status",
+  "gh issue view",
+  "gh pr checks",
+  "gh pr diff",
+  "gh pr view",
+]
+decision = "allow"
+priority = 100
+allow_redirection = true
+
+[[rule]]
+name = "Utils: Deny Heredoc Usage"
+toolName = "run_shell_command"
+commandRegex = "<<\\s*['\"]?[a-zA-Z0-9_]+['\"]?"
+decision = "deny"
+priority = 90
+reason = "Using heredocs (e.g. 'cat << EOF' or 'python3 << EOF') is prohibited in the shell. Please use the native 'write_file' MCP tool instead."
