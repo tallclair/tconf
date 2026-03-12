@@ -16,6 +16,9 @@ if test -f ~/.fish_aliases
     source ~/.fish_aliases
 end
 
+# Fish
+abbr -a fish_reload_config 'source ~/.config/fish/config.fish'
+
 # Go
 abbr -a gag "ag -G '.*\.go\$'"
 

@@ -13,16 +13,20 @@ set -euo pipefail
 #                      Usage: go-test -c [branch_name]
 #   -r, --recursive    If set, appends '/...' to package paths to run tests 
 #                      recursively in subdirectories.
+#   -i, --ignore       Ignore changes/tests in the specified directory and 
+#                      its subdirectories.
 #   [args...]          Any other arguments are passed directly to gotestsum.
 #
 # Examples:
 #   go-test -s                  # Test staged packages
 #   go-test -c -r               # Recursive test on all changes vs upstream/master
+#   go-test -c -i internal/old  # Ignore changes in internal/old
 #   go-test -c main             # Test changes vs 'main' branch
 #   go-test -count=1 ./pkg/...  # Standard manual usage
 
 mode=""
 recursive=false
+ignore_dir=""
 target_branch="upstream/master"
 pass_through_args=()
 
@@ -45,6 +49,16 @@ while [[ $# -gt 0 ]]; do
     -r|--recursive)
       recursive=true
       shift
+      ;;
+    -i|--ignore)
+      shift
+      if [[ -n "${1:-}" && "${1:-}" != -* ]]; then
+        ignore_dir="$1"
+        shift
+      else
+        echo "Error: -i/--ignore requires a directory path." >&2
+        exit 1
+      fi
       ;;
     *)
       # Collect unknown args to pass to gotestsum (e.g., -v, -run)
@@ -76,6 +90,14 @@ elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   elif [[ "$mode" == "changed" ]]; then
     changed_files=$(git diff --name-only "$target_branch" | grep '\.go$' || true)
   fi
+fi
+
+# Filter out ignored directory if specified
+if [[ -n "$ignore_dir" && -n "$changed_files" ]]; then
+  # Strip leading ./ and trailing / for consistent matching
+  ignore_dir="${ignore_dir#./}"
+  ignore_dir="${ignore_dir%/}"
+  changed_files=$(echo "$changed_files" | grep -v "^${ignore_dir}/" | grep -v "^${ignore_dir}$" || true)
 fi
 
 # If a mode was selected but no .go files changed, exit early
