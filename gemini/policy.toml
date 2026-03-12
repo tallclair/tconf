@@ -2,7 +2,7 @@
 [[rule]]
 toolName = "run_shell_command"
 commandPrefix = [
-  "git branch -D"
+  "git branch -D",
   "git cherry-pick",
   "git clean",
   "git commit",
@@ -23,7 +23,7 @@ priority = 500
 toolName = "run_shell_command"
 commandPrefix = [
   "gh pr merge",
-  "gh release delete"
+  "gh release delete",
   "gh repo delete",
   "gh secret delete",
 ]
@@ -39,7 +39,6 @@ priority = 200
 
 # Auto-approve safe read-only standard shell commands.
 [[rule]]
-name = "Utils: Allow safe read-only shell commands"
 toolName = "run_shell_command"
 commandPrefix = [
   "awk",
@@ -62,7 +61,7 @@ commandPrefix = [
   "uname",
   "uniq",
   "wc",
-  "which"
+  "which",
 ]
 decision = "allow"
 priority = 100
@@ -73,7 +72,7 @@ allow_redirection = true
 name = "Utils: Allow safe write commands"
 toolName = "run_shell_command"
 commandPrefix = [
-	"mkdir"
+	"mkdir",
 ]
 
 # Auto-approve safe read-only Version Control & GitHub inspection.
@@ -98,7 +97,7 @@ commandPrefix = [
   "jj status",
   
   # gh
-  "gh api"
+  "gh api",
   "gh auth status",
   "gh issue view",
   "gh pr checks",
@@ -109,10 +108,10 @@ decision = "allow"
 priority = 100
 allow_redirection = true
 
+# Deny heredoc usage
 [[rule]]
-name = "Utils: Deny Heredoc Usage"
 toolName = "run_shell_command"
 commandRegex = "<<\\s*['\"]?[a-zA-Z0-9_]+['\"]?"
 decision = "deny"
 priority = 90
-reason = "Using heredocs (e.g. 'cat << EOF' or 'python3 << EOF') is prohibited in the shell. Please use the native 'write_file' MCP tool instead."
+deny_message = "Using heredocs (e.g. 'cat << EOF') is prohibited in the shell. Please use the native 'write_file' tool instead."
