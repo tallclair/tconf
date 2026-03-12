@@ -8,6 +8,7 @@
 
 [core]
 	editor = micro
+	excludesfile = ~/.gitignore
 
 [init]
 	templatedir = ~/.git-templates

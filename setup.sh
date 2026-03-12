@@ -32,7 +32,7 @@ hml jj/config.toml .config/jj/conf.d/00-config.toml
 hmrol gpg/gpg.conf .gnupg/gpg.conf
 
 # gemini-cli
-hml gemini/policy.toml .gemini/policies/policy.toml
+hmcp gemini/policy.toml .gemini/policies/tconf.toml
 
 # micro editor
 hml micro/bindings.json .config/micro/bindings.json

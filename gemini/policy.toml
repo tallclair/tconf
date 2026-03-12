@@ -1,3 +1,23 @@
+# Forbid destructive GitHub CLI (gh) operations and ask for confirmation.
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "gh pr merge",
+  "gh release delete",
+  "gh repo delete",
+  "gh secret delete",
+]
+decision = "deny"
+priority = 900
+
+# Deny heredoc usage
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = ".*<<\\s*['\"]?[a-zA-Z0-9_]+['\"]?"
+decision = "deny"
+priority = 900
+deny_message = "Using heredocs (e.g. 'cat << EOF') is prohibited in the shell. Please use the native 'write_file' tool instead."
+
 # Catch destructive or mutating Git operations and ask for confirmation.
 [[rule]]
 toolName = "run_shell_command"
@@ -18,24 +38,12 @@ commandPrefix = [
 decision = "ask_user"
 priority = 500
 
-# Catch destructive GitHub CLI (gh) operations and ask for confirmation.
-[[rule]]
-toolName = "run_shell_command"
-commandPrefix = [
-  "gh pr merge",
-  "gh release delete",
-  "gh repo delete",
-  "gh secret delete",
-]
-decision = "deny"
-priority = 500
-
 # Catch any redirections (>, <) or command chaining (;, &, ||) and require manual approval.
 [[rule]]
 toolName = "run_shell_command"
 argsPattern = '.*([<>;&]|\|\|).*'
 decision = "ask_user"
-priority = 200
+priority = 500
 
 # Auto-approve safe read-only standard shell commands.
 [[rule]]
@@ -53,7 +61,6 @@ commandPrefix = [
   "man",
   "pwd",
   "rg",
-  "sed",
   "sort",
   "stat",
   "tail",
@@ -67,13 +74,49 @@ decision = "allow"
 priority = 100
 allow_redirection = true
 
+# Auto-approve xargs with safe read-only standard shell commands.
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "xargs awk",
+  "xargs cat",
+  "xargs grep",
+  "xargs head",
+  "xargs sort",
+  "xargs stat",
+  "xargs tail",
+  "xargs uniq",
+  "xargs wc",
+  "xargs which",
+]
+decision = "allow"
+priority = 100
+allow_redirection = true
+
+# Auto-approve safe read-only usages of sed.
+[[rule]]
+toolName = "run_shell_command"
+# Line number filtering
+commandRegex = '''sed[ Ern-]*'[0-9]+,?[0-9$]*p'(| [a-zA-Z0-9_./][a-zA-Z0-9_./-]*)'''
+decision = "allow"
+priority = 100
+allow_redirection = true
+[[rule]]
+toolName = "run_shell_command"
+# Safe subset of string processing
+commandRegex = '''sed[ Ern-]*'s/[^/']*/[^/']*/[gpI]*'(| [a-zA-Z0-9_./][a-zA-Z0-9_./-]*)'''
+decision = "allow"
+priority = 100
+allow_redirection = true
+
 # Auto-approve safe write shell commands.
 [[rule]]
-name = "Utils: Allow safe write commands"
 toolName = "run_shell_command"
 commandPrefix = [
 	"mkdir",
 ]
+decision = "allow"
+priority = 100
 
 # Auto-approve safe read-only Version Control & GitHub inspection.
 [[rule]]
@@ -108,10 +151,3 @@ decision = "allow"
 priority = 100
 allow_redirection = true
 
-# Deny heredoc usage
-[[rule]]
-toolName = "run_shell_command"
-commandRegex = "<<\\s*['\"]?[a-zA-Z0-9_]+['\"]?"
-decision = "deny"
-priority = 90
-deny_message = "Using heredocs (e.g. 'cat << EOF') is prohibited in the shell. Please use the native 'write_file' tool instead."
