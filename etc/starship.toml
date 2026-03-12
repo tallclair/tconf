@@ -77,8 +77,10 @@ disabled = true
 
 [custom.jj]
 description = "Jujutsu Status"
+shell = ["sh"]
 # Only run this module if we are inside a jj repository
-when = "jj root"
+# Pure POSIX shell check for .jj directory upward traversal
+when = '''d="$PWD"; while [ -n "$d" ]; do [ -d "$d/.jj" ] && exit 0; [ "$d" = "/" ] && break; d="${d%/*}"; [ -z "$d" ] && d="/"; done; exit 1'''
 # Format the output to look like: " main xyz12 (empty)"
 command = '''jj --color=always log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, label("red", " (conflict)")) ++ if(empty, " (empty)")' '''
 #command = '''jj log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, " [\\\\(conflict\\\\)](red)") ++ if(empty, " (empty)")' '''
@@ -87,8 +89,12 @@ format = "[$output]($style)"
 
 [custom.git]
 description = "Git Status (Disabled in JJ repos)"
+shell = ["sh"]
+# Natively checks for a git repo, replacing the need for `git rev-parse`
+require_repo = true
 # Run if in a git repo AND NOT in a jj repo
-when = 'git rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! jj root >/dev/null 2>&1'
+# Pure POSIX shell check confirming we are NOT in a .jj directory
+when = '''d="$PWD"; while [ -n "$d" ]; do [ -d "$d/.jj" ] && exit 1; [ "$d" = "/" ] && break; d="${d%/*}"; [ -z "$d" ] && d="/"; done; exit 0'''
 # Call starship's native modules directly for branch and state
 command = 'printf "%s%s" "$(starship module git_branch)" "$(starship module git_state)"'
 format = "$output"

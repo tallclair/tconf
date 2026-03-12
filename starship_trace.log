@@ -1,0 +1,253 @@
+[[2;34mTRACE[0m] - (starship): Parsed arguments: Cli {
+    command: Prompt {
+        right: false,
+        profile: None,
+        continuation: false,
+        properties: Properties {
+            status_code: None,
+            pipestatus: None,
+            terminal_width: 226,
+            path: None,
+            logical_path: None,
+            cmd_duration: None,
+            keymap: "viins",
+            jobs: 0,
+            shlvl: None,
+        },
+    },
+}
+[[2;34mTRACE[0m] - (starship::utils): Trying to read from "etc/starship.toml"
+[[2;34mTRACE[0m] - (starship::utils): File read successfully
+[[2;34mTRACE[0m] - (starship::config): Config file content: "
+# 1. Structure: Scaffolding & Two-Line Layout
+# separator = "[ │ ](separator)"
+format = """\
+[// ](separator dimmed)\
+($username${env_var.REMOTE_ALIAS}[:](separator dimmed))\
+$directory( ${env_var.SHPOOL_SESSION_NAME})\
+([ // ](separator dimmed)${custom.jj}${custom.git})\
+([ // ](separator dimmed)${env_var.STARSHIP_EXTRA})\
+([ // ](separator dimmed)$status)\
+$fill($cmd_duration) $time
+[> ](command bold)"""
+
+# format = """\
+# [╭╢ ](frame)\
+# ($username$hostname[:](separator))\
+# $directory\
+# ([ // ](separator dimmed)$git_branch$git_status)\
+# [ ║](frame)\
+# $status\
+# $fill($cmd_duration) $time
+# [╰╼ ](frame)"""
+
+add_newline = true
+command_timeout = 500
+
+palette = "dark"
+[palettes.dark]
+separator = "white"
+frame = "white"
+command = "bright-white"
+directory = "blue"
+directory-faded = "bright-blue"
+git = "purple"
+userhost = "cyan"
+
+[time]
+disabled = false
+format = '[\[$time\]]($style)'
+time_format = "%T"
+style = "white dimmed"
+
+[directory]
+style = "directory"
+before_repo_root_style = "directory-faded"
+repo_root_style = "directory"
+read_only = "🔒"
+truncation_length = 5
+truncate_to_repo = false
+truncation_symbol = '…/'
+
+format = "[$path]($style)[$read_only]($read_only_style)"
+repo_root_format = """\
+[$before_root_path]($before_repo_root_style)\
+[$repo_root]($repo_root_style)\
+[$path]($style)[$read_only]($read_only_style)"""
+
+# Note: this is used by custom.git even though it isn't in the main format string.
+[git_branch]
+symbol = " "
+style = "git"
+format = "[$symbol$branch]($style)"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\)'
+
+[git_status]
+ignore_submodules = true
+stashed = ""
+deleted = "x"
+modified = "!"
+staged = "+"
+untracked = "?"
+renamed = "~"
+style = "git"
+format = "([ $all_status]($style bold))"
+disabled = true
+
+[custom.jj]
+description = "Jujutsu Status"
+shell = ["sh", "-c"]
+# Only run this module if we are inside a jj repository
+when = "jj root"
+# Format the output to look like: " main xyz12 (empty)"
+command = '''jj --color=always log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, label("red", " (conflict)")) ++ if(empty, " (empty)")' '''
+#command = '''jj log -r@ -n1 --no-graph --ignore-working-copy -T '" " ++ if(bookmarks, bookmarks ++ " ", "") ++ change_id.short(5) ++ if(conflict, " [\\\\(conflict\\\\)](red)") ++ if(empty, " (empty)")' '''
+style = "git"
+format = "[$output]($style)"
+
+[custom.git]
+description = "Git Status (Disabled in JJ repos)"
+shell = ["sh", "-c"]
+# Run if in a git repo AND NOT in a jj repo
+when = 'git rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! jj root >/dev/null 2>&1'
+# Call starship's native modules directly for branch and state
+command = 'printf "%s%s" "$(starship module git_branch)" "$(starship module git_state)"'
+format = "$output"
+
+[username]
+style_user = "userhost bold"
+show_always = false
+format = "[$user]($style)@"
+
+[hostname]
+style = "userhost bold"
+ssh_only = true
+format = "[$hostname]($style)"
+disabled = true
+
+[fill]
+symbol = " "
+
+[status]
+disabled = false
+style = "red bold"
+success_symbol = ""
+format = '[E:$status]($style)'
+
+[cmd_duration]
+min_time = 2000
+style = "yellow"
+format = ' [\($duration\)]($style)'
+
+[env_var.STARSHIP_EXTRA]
+description = "Miscellaneous environment variable to add arbitrary extra info."
+style = "yellow"
+format = "[$env_value]($style)"
+
+[env_var.REMOTE_ALIAS]
+description = "Display name for remote machine."
+style = "userhost"
+format = "[$env_value]($style)"
+
+[env_var.SHPOOL_SESSION_NAME]
+description = "shpoool session name"
+style = "white"
+format = '[\($env_value\)]($style)'
+"
+[[36mDEBUG[0m] - (starship::config): Config parsed: {"format": String("[// ](separator dimmed)($username${env_var.REMOTE_ALIAS}[:](separator dimmed))$directory( ${env_var.SHPOOL_SESSION_NAME})([ // ](separator dimmed)${custom.jj}${custom.git})([ // ](separator dimmed)${env_var.STARSHIP_EXTRA})([ // ](separator dimmed)$status)$fill($cmd_duration) $time\n[> ](command bold)"), "add_newline": Boolean(true), "command_timeout": Integer(500), "palette": String("dark"), "palettes": Table({"dark": Table({"separator": String("white"), "frame": String("white"), "command": String("bright-white"), "directory": String("blue"), "directory-faded": String("bright-blue"), "git": String("purple"), "userhost": String("cyan")})}), "time": Table({"disabled": Boolean(false), "format": String("[\\[$time\\]]($style)"), "time_format": String("%T"), "style": String("white dimmed")}), "directory": Table({"style": String("directory"), "before_repo_root_style": String("directory-faded"), "repo_root_style": String("directory"), "read_only": String("🔒"), "truncation_length": Integer(5), "truncate_to_repo": Boolean(false), "truncation_symbol": String("…/"), "format": String("[$path]($style)[$read_only]($read_only_style)"), "repo_root_format": String("[$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style)")}), "git_branch": Table({"symbol": String("\u{f418} "), "style": String("git"), "format": String("[$symbol$branch]($style)")}), "git_state": Table({"format": String("\\([$state( $progress_current/$progress_total)]($style)\\)")}), "git_status": Table({"ignore_submodules": Boolean(true), "stashed": String(""), "deleted": String("x"), "modified": String("!"), "staged": String("+"), "untracked": String("?"), "renamed": String("~"), "style": String("git"), "format": String("([ $all_status]($style bold))"), "disabled": Boolean(true)}), "custom": Table({"jj": Table({"description": String("Jujutsu Status"), "shell": Array([String("sh"), String("-c")]), "when": String("jj root"), "command": String("jj --color=always log -r@ -n1 --no-graph --ignore-working-copy -T '\"\u{f418} \" ++ if(bookmarks, bookmarks ++ \" \", \"\") ++ change_id.short(5) ++ if(conflict, label(\"red\", \" (conflict)\")) ++ if(empty, \" (empty)\")' "), "style": String("git"), "format": String("[$output]($style)")}), "git": Table({"description": String("Git Status (Disabled in JJ repos)"), "shell": Array([String("sh"), String("-c")]), "when": String("git rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! jj root >/dev/null 2>&1"), "command": String("printf \"%s%s\" \"$(starship module git_branch)\" \"$(starship module git_state)\""), "format": String("$output")})}), "username": Table({"style_user": String("userhost bold"), "show_always": Boolean(false), "format": String("[$user]($style)@")}), "hostname": Table({"style": String("userhost bold"), "ssh_only": Boolean(true), "format": String("[$hostname]($style)"), "disabled": Boolean(true)}), "fill": Table({"symbol": String(" ")}), "status": Table({"disabled": Boolean(false), "style": String("red bold"), "success_symbol": String(""), "format": String("[E:$status]($style)")}), "cmd_duration": Table({"min_time": Integer(2000), "style": String("yellow"), "format": String(" [\\($duration\\)]($style)")}), "env_var": Table({"STARSHIP_EXTRA": Table({"description": String("Miscellaneous environment variable to add arbitrary extra info."), "style": String("yellow"), "format": String("[$env_value]($style)")}), "REMOTE_ALIAS": Table({"description": String("Display name for remote machine."), "style": String("userhost"), "format": String("[$env_value]($style)")}), "SHPOOL_SESSION_NAME": Table({"description": String("shpoool session name"), "style": String("white"), "format": String("[\\($env_value\\)]($style)")})})}
+[[2;34mTRACE[0m] - (starship::context): Received completed pipestatus of None
+[[36mDEBUG[0m] - (starship::config): Config found for "cmd_duration": Some(Table({"min_time": Integer(2000), "style": String("yellow"), "format": String(" [\\($duration\\)]($style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "cmd_duration": Some(Table({"min_time": Integer(2000), "style": String("yellow"), "format": String(" [\\($duration\\)]($style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "cmd_duration": Some(Table({"min_time": Integer(2000), "style": String("yellow"), "format": String(" [\\($duration\\)]($style)")}))
+[[2;34mTRACE[0m] - (starship::modules): Took 238.349µs to compute module "cmd_duration"
+[[2;34mTRACE[0m] - (starship::config): No config found for "custom.jj": Option "custom.jj" not found
+[[36mDEBUG[0m] - (starship::config): Custom config found for "jj": Some(Table({"description": String("Jujutsu Status"), "shell": Array([String("sh"), String("-c")]), "when": String("jj root"), "command": String("jj --color=always log -r@ -n1 --no-graph --ignore-working-copy -T '\"\u{f418} \" ++ if(bookmarks, bookmarks ++ \" \", \"\") ++ change_id.short(5) ++ if(conflict, label(\"red\", \" (conflict)\")) ++ if(empty, \" (empty)\")' "), "style": String("git"), "format": String("[$output]($style)")}))
+[[2;34mTRACE[0m] - (starship::config): No config found for "custom.git": Option "custom.git" not found
+[[36mDEBUG[0m] - (starship::config): Custom config found for "git": Some(Table({"description": String("Git Status (Disabled in JJ repos)"), "shell": Array([String("sh"), String("-c")]), "when": String("git rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! jj root >/dev/null 2>&1"), "command": String("printf \"%s%s\" \"$(starship module git_branch)\" \"$(starship module git_state)\""), "format": String("$output")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "status": Some(Table({"disabled": Boolean(false), "style": String("red bold"), "success_symbol": String(""), "format": String("[E:$status]($style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "status": Some(Table({"disabled": Boolean(false), "style": String("red bold"), "success_symbol": String(""), "format": String("[E:$status]($style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "directory": Some(Table({"style": String("directory"), "before_repo_root_style": String("directory-faded"), "repo_root_style": String("directory"), "read_only": String("🔒"), "truncation_length": Integer(5), "truncate_to_repo": Boolean(false), "truncation_symbol": String("…/"), "format": String("[$path]($style)[$read_only]($read_only_style)"), "repo_root_format": String("[$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "username": Some(Table({"style_user": String("userhost bold"), "show_always": Boolean(false), "format": String("[$user]($style)@")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "username": Some(Table({"style_user": String("userhost bold"), "show_always": Boolean(false), "format": String("[$user]($style)@")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "username": Some(Table({"style_user": String("userhost bold"), "show_always": Boolean(false), "format": String("[$user]($style)@")}))
+[[2;34mTRACE[0m] - (starship::modules): Took 676.323µs to compute module "username"
+[[36mDEBUG[0m] - (starship::config): Config found for "fill": Some(Table({"symbol": String(" ")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "fill": Some(Table({"symbol": String(" ")}))
+[[2;34mTRACE[0m] - (starship::config): No config found for "env_var.SHPOOL_SESSION_NAME": Option "env_var.SHPOOL_SESSION_NAME" not found
+[[36mDEBUG[0m] - (starship::config): Config found for "time": Some(Table({"disabled": Boolean(false), "format": String("[\\[$time\\]]($style)"), "time_format": String("%T"), "style": String("white dimmed")}))
+[[2;34mTRACE[0m] - (starship::config): No config found for "env_var.STARSHIP_EXTRA": Option "env_var.STARSHIP_EXTRA" not found
+[[36mDEBUG[0m] - (starship::config): Config found for "status": Some(Table({"disabled": Boolean(false), "style": String("red bold"), "success_symbol": String(""), "format": String("[E:$status]($style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "directory": Some(Table({"style": String("directory"), "before_repo_root_style": String("directory-faded"), "repo_root_style": String("directory"), "read_only": String("🔒"), "truncation_length": Integer(5), "truncate_to_repo": Boolean(false), "truncation_symbol": String("…/"), "format": String("[$path]($style)[$read_only]($read_only_style)"), "repo_root_format": String("[$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style)")}))
+[[2;34mTRACE[0m] - (starship::context): Building HashSets of directory files, folders and extensions took 190.749µs
+[[2;34mTRACE[0m] - (starship::modules::custom): Running 'jj root'
+[[2;34mTRACE[0m] - (starship::modules): Took 8.172µs to compute module "env_var.SHPOOL_SESSION_NAME"
+[[36mDEBUG[0m] - (starship::config): Config found for "time": Some(Table({"disabled": Boolean(false), "format": String("[\\[$time\\]]($style)"), "time_format": String("%T"), "style": String("white dimmed")}))
+[[2;34mTRACE[0m] - (starship::modules): Took 4.515µs to compute module "env_var.STARSHIP_EXTRA"
+[[2;34mTRACE[0m] - (starship::modules): Took 2.815418ms to compute module "status"
+[[36mDEBUG[0m] - (starship::config): Config found for "status": Some(Table({"disabled": Boolean(false), "style": String("red bold"), "success_symbol": String(""), "format": String("[E:$status]($style)")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "fill": Some(Table({"symbol": String(" ")}))
+[[2;34mTRACE[0m] - (starship::modules::custom): Running 'git rev-parse --is-inside-work-tree >/dev/null 2>&1 && ! jj root >/dev/null 2>&1'
+[[2;34mTRACE[0m] - (starship::utils): Creating Command for binary "sh"
+[[2;34mTRACE[0m] - (starship::utils): Using "/usr/bin/sh" as "sh"
+[[2;34mTRACE[0m] - (starship::config): No config found for "env_var.REMOTE_ALIAS": Option "env_var.REMOTE_ALIAS" not found
+[[36mDEBUG[0m] - (starship::config): Config found for "time": Some(Table({"disabled": Boolean(false), "format": String("[\\[$time\\]]($style)"), "time_format": String("%T"), "style": String("white dimmed")}))
+[[36mDEBUG[0m] - (starship::config): Config found for "directory": Some(Table({"style": String("directory"), "before_repo_root_style": String("directory-faded"), "repo_root_style": String("directory"), "read_only": String("🔒"), "truncation_length": Integer(5), "truncate_to_repo": Boolean(false), "truncation_symbol": String("…/"), "format": String("[$path]($style)[$read_only]($read_only_style)"), "repo_root_format": String("[$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style)")}))
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: black
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: black
+[[2;34mTRACE[0m] - (starship::modules): Took 4.168372ms to compute module "fill"
+[[2;34mTRACE[0m] - (starship::utils): Creating Command for binary "sh"
+[[2;34mTRACE[0m] - (starship::modules): Took 4.195µs to compute module "env_var.REMOTE_ALIAS"
+[[2;34mTRACE[0m] - (starship::modules::time): Timer module is enabled with format string: %T
+[[36mDEBUG[0m] - (starship::modules::directory): Home dir: "/home/stclair"
+[[36mDEBUG[0m] - (starship::modules::directory): Physical dir: "/home/stclair/tconf"
+[[36mDEBUG[0m] - (starship::modules::directory): Display dir: "/home/stclair/tconf"
+[[2;34mTRACE[0m] - (starship::modules::custom): non-zero exit code 'Some(2)'
+[[2;34mTRACE[0m] - (starship::modules::custom): stdout: 
+[[2;34mTRACE[0m] - (starship::modules::custom): stderr: /usr/bin/sh: -c: option requires an argument
+
+[[2;34mTRACE[0m] - (starship::utils): Using "/usr/bin/sh" as "sh"
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: white
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: white
+[[2;34mTRACE[0m] - (starship::modules): Took 8.088328ms to compute module "custom.git"
+[[2;34mTRACE[0m] - (starship::config): No config found for "custom.git": Option "custom.git" not found
+[[2;34mTRACE[0m] - (starship::context): Found git repo: Repository { kind: WorkTree { is_linked: false }, git_dir: "/home/stclair/tconf/.git", work_dir: Some("/home/stclair/tconf") }, (trust: Full)
+[[2;34mTRACE[0m] - (starship::modules): Took 3.584024ms to compute module "time"
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: directory-faded
+[[2;34mTRACE[0m] - (starship::config): Read user-defined color string: directory-faded defined as bright-blue
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: bright-blue
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: bright-blue
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: directory
+[[2;34mTRACE[0m] - (starship::config): Read user-defined color string: directory defined as blue
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: blue
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: blue
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: directory
+[[2;34mTRACE[0m] - (starship::config): Read user-defined color string: directory defined as blue
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: blue
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: blue
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: red
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: red
+[[2;34mTRACE[0m] - (starship::modules): Took 6.055811ms to compute module "directory"
+[[2;34mTRACE[0m] - (starship::modules::custom): non-zero exit code 'Some(2)'
+[[2;34mTRACE[0m] - (starship::modules::custom): stdout: 
+[[2;34mTRACE[0m] - (starship::modules::custom): stderr: /usr/bin/sh: -c: option requires an argument
+
+[[2;34mTRACE[0m] - (starship::modules): Took 11.501056ms to compute module "custom.jj"
+[[2;34mTRACE[0m] - (starship::config): No config found for "custom.jj": Option "custom.jj" not found
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: separator
+[[2;34mTRACE[0m] - (starship::config): Read user-defined color string: separator defined as white
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: white
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: white
+[[2;34mTRACE[0m] - (starship::config): Found color palette: dark
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: command
+[[2;34mTRACE[0m] - (starship::config): Read user-defined color string: command defined as bright-white
+[[2;34mTRACE[0m] - (starship::config): Parsing color_string: bright-white
+[[2;34mTRACE[0m] - (starship::config): Read predefined color: bright-white
