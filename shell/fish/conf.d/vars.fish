@@ -30,7 +30,7 @@ for layer in "" local priv
 end
 
 if not set -q REMOTE_ALIAS
-    if set -q SSH_CLIENT; or set -q SSH_CONNECTION; or begin test -z "$XDG_VTNR"; and test -z "$DISPLAY"; end
+    if set -q SSH_CLIENT; or set -q SSH_CONNECTION; or begin test (uname) != "Darwin"; and test -z "$XDG_VTNR"; and test -z "$DISPLAY"; end
         set -gx REMOTE_ALIAS (hostname)
     end
 end
