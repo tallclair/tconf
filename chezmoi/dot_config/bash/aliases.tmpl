@@ -16,24 +16,20 @@ alias git_nosign='git -c commit.gpgsign=false'
 alias gitns='git_nosign'
 alias git-stclair='git -c core.sshCommand="ssh -i ~/.ssh/gh_timstclair"'
 
-# utils
-alias uuid='cat /dev/urandom | tr -dc a-z0-9 | head -c'
-alias xcp='xclip -selection clipboard'
 alias timestamp='while read line; do echo -e "$(date +"%H:%M:%S.%3N")\t $line"; done'
 
 # Add an "alert" alias for long running commands
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# Filesystem
+# Common aliases from Chezmoi data
+{{ range $key, $value := .env.aliases -}}
+alias {{ $key }}={{ $value | quote }}
+{{ end -}}
+{{ range $key, $value := .env.abbreviations -}}
+alias {{ $key }}={{ $value | quote }}
+{{ end -}}
 
-# Load local aliases
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
-
-# Go
-alias gag="ag -G '.*\.go$'"
-
-# Typos
-alias gits='git status'
-alias kubcetl='kubectl'
+{{ if eq .chezmoi.os "darwin" -}}
+alias xcp="pbcopy"
+alias xpaste="pbpaste"
+{{ end -}}

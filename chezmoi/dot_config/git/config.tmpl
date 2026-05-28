@@ -4,7 +4,7 @@
 	name = Tim Allclair
 	email = {{ .email | quote }}
 	signingkey = 0x5E6F2E2DA760AF51
-	github = {{ .env.GITHUB_USER | quote }}
+	github = {{ .env.vars.GITHUB_USER | quote }}
 
 [core]
 	editor = {{ .editor | quote }}

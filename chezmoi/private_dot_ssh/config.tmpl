@@ -1,0 +1,4 @@
+{{- $privSshConfig := joinPath .chezmoi.homeDir "tconf/priv/etc/ssh-config" -}}
+{{- if stat $privSshConfig }}
+{{ include $privSshConfig }}
+{{- end }}
