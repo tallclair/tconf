@@ -1,8 +1,0 @@
-[include]
-    path = ~/tconf/git/config
-
-[include]
-    path = ~/tconf/local/git/config
-
-[include]
-    path = ~/tconf/priv/git/config

@@ -1,9 +1,9 @@
 [user]
 name = "Tim Allclair"
-email = "timallclair@gmail.com"
+email = {{ .email | quote }}
 
 [ui]
-editor = ["micro"]
+editor = [{{ .editor | quote }}]
 merge-editor = ":builtin"
 conflict-marker-style = "git"
 
@@ -17,6 +17,3 @@ red = "red"
 [aliases]
 s = ["status"]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@)", "--to", "(@ & ~empty()) | parents(@ & empty())"]
-
-# For your custom 'start' shell script, we escape to the shell via `util exec`
-# start = ["util", "exec", "--", "bash", "-c", "git fetch upstream && git checkout -b \"$1\" upstream/master", ""]

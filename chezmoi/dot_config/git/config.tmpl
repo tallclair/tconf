@@ -2,16 +2,12 @@
 
 [user]
 	name = Tim Allclair
-	email = timallclair@gmail.com
+	email = {{ .email | quote }}
 	signingkey = 0x5E6F2E2DA760AF51
-	github = tallclair
+	github = {{ .env.GITHUB_USER | quote }}
 
 [core]
-	editor = micro
-	excludesfile = ~/.gitignore
-
-[init]
-	templatedir = ~/.git-templates
+	editor = {{ .editor | quote }}
 
 [color]
 	ui = true

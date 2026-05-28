@@ -11,9 +11,9 @@ if status is-interactive
     # set -g fish_color_param --bold
 end
 
-function fish_greeting -d 'Display startup greeting'
-    set_color -d white
-    printf "// %s\n" (date "+%A, %B %d, %Y • %T %Z")
-    printf "// %s@%s (fish-shell)\n" (whoami) (hostname)
-    set_color normal
+# Detect remote connections
+if not set -q REMOTE_ALIAS
+    if set -q SSH_CLIENT; or set -q SSH_CONNECTION; or begin test -z "$XDG_VTNR"; and test -z "$DISPLAY"; end
+        set -gx REMOTE_ALIAS (hostname)
+    end
 end
