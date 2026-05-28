@@ -3,6 +3,22 @@
 export SHELL="$(which $0)"
 export SHELL_NAME="bash"
 
+# Common environment variables
+{{ range $key, $value := .env.vars -}}
+export {{ $key }}={{ $value | quote }}
+{{ end -}}
+
+# Common path fragments
+{{ range .env.path -}}
+eval expanded_path={{ . | quote }}
+if [ -d "$expanded_path" ]; then
+    case ":$PATH:" in
+        *":$expanded_path:"*) ;;
+        *) export PATH="$expanded_path:$PATH" ;;
+    esac
+fi
+{{ end -}}
+
 # Display welcome message
 echo -en '\e[2;37m' # Dimmed
 echo "// $(date "+%A, %B %d, %Y • %T %Z")"
@@ -24,11 +40,6 @@ shopt -s checkwinsize
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-if dircolors &> /dev/null; then
-  DIRCOLORS=$TCONF/themes/current-theme/dircolors
-  (test -r $DIRCOLORS && eval "$(dircolors -b $DIRCOLORS)" || eval "$(dircolors -b)")
-fi
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
@@ -56,24 +67,52 @@ if ! shopt -oq posix; then
   elif [ -f /opt/brew/opt/git/etc/bash_completion.d/git-prompt.sh ]; then
     . /opt/brew/opt/git/etc/bash_completion.d/git-prompt.sh
   fi
+
+  if command -v kubectl &> /dev/null; then
+    # Kubernetes bash completions.
+    source <(kubectl completion bash)
+  fi
 fi
 
-# Load the config if it exists.
-load() {
-  if [ -f "$1" ]; then
-    . "$1"
-  fi
-}
+# Set REMOTE_ALIAS fallback
+if [ -z "$REMOTE_ALIAS" ]; then
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_CONNECTION" ] || { [ -z "$XDG_VTNR" ] && [ -z "$DISPLAY" ]; }; then
+        export REMOTE_ALIAS="$(hostname)"
+    fi
+fi
 
-# Load modular config
-MODULES="vars functions aliases ps1"
-for MODULE in $MODULES; do
-    load "$TCONF/shell/$MODULE"
-    load "$TCONF/local/shell/$MODULE"
-    load "$TCONF/priv/shell/$MODULE"
+{{ if eq .chezmoi.os "darwin" -}}
+# Homebrew setup for macOS
+# Try common Homebrew locations (Apple Silicon, Intel, etc.)
+for brew_path in /opt/homebrew/bin/brew /usr/local/bin/brew /opt/brew/bin/brew "$HOME/homebrew/bin/brew"; do
+    if [ -x "$brew_path" ]; then
+        eval "$("$brew_path" shellenv)"
+        break
+    fi
 done
 
-# Load local configs
-load "$TCONF/local/shell/bashrc"
-load "$TCONF/priv/shell/bashrc"
-load "$TCONF/secret/shell/bashrc"
+[[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]] && . "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+
+/usr/bin/ssh-add --apple-load-keychain -q
+
+unalias ls  # Mac compatability fix
+
+{{- end -}}
+
+# Load modular configs in deterministic order
+BASH_CONF_DIR="$HOME/.config/bash"
+
+# 1. Load Aliases
+if [ -f "$BASH_CONF_DIR/aliases" ]; then
+    . "$BASH_CONF_DIR/aliases"
+fi
+
+# 2. Load Prompt (PS1 / Starship)
+if [ -f "$BASH_CONF_DIR/ps1" ]; then
+    . "$BASH_CONF_DIR/ps1"
+fi
+
+# 3. Load Private Config
+if [ -f "$TCONF/priv/shell/bashrc" ]; then
+    . "$TCONF/priv/shell/bashrc"
+fi

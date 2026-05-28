@@ -1,6 +1,0 @@
-export DEVICE=work_desk
-export DEVICE_NAME=$DEVICE # Deprecated
-
-export BROWSER=google-chrome
-
-export KUBECONFIG="$HOME/.kube/config"

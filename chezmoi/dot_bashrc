@@ -18,4 +18,9 @@ if [[ "$-" =~ i && -x "${WHICH_FISH}" && ! "${SHELL}" -ef "${WHICH_FISH}" ]]; th
   exec env SHELL="${WHICH_FISH}" "${WHICH_FISH}" -i
 fi
 
-source "$TCONF/shell/bashrc"
+# Load the main bash configuration hub
+if [ -f "$HOME/.config/bash/bashrc" ]; then
+    . "$HOME/.config/bash/bashrc"
+fi
+
+

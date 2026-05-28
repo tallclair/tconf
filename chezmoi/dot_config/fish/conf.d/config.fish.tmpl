@@ -1,0 +1,48 @@
+# Configure prompt
+if status is-interactive
+    # Initialize Starship
+    starship init fish | source
+
+    # 7. Bold the command text
+    # This affects the actual command you type (e.g., 'git', 'vim')
+    set -g fish_color_command --bold
+
+    # Optional: If you want arguments bold as well (e.g., 'commit', 'filename')
+    # set -g fish_color_param --bold
+end
+
+# Detect remote connections
+if not set -q REMOTE_ALIAS
+    if set -q SSH_CLIENT; or set -q SSH_CONNECTION; or begin test -z "$XDG_VTNR"; and test -z "$DISPLAY"; end
+        set -gx REMOTE_ALIAS (hostname)
+    end
+end
+
+{{ if eq .chezmoi.os "darwin" -}}
+# Homebrew setup for macOS
+# Try common Homebrew locations (Apple Silicon, Intel, etc.)
+for brew_path in /opt/homebrew/bin/brew /usr/local/bin/brew /opt/brew/bin/brew $HOME/homebrew/bin/brew
+    if test -x $brew_path
+        eval ($brew_path shellenv)
+        break
+    end
+end
+
+{{- else -}}
+
+# Connect agents
+if not set -q SSH_CLIENT; and not set -q SSH_TTY
+    if type -q keychain
+        keychain --quiet --quick gh_tallclair google_compute_engine
+        if test -f "$HOME/.keychain/$hostname-fish"
+            source "$HOME/.keychain/$hostname-fish"
+        end
+    end
+end
+
+{{- end }}
+
+# Load private configuration if it exists
+if test -f "$TCONF/priv/shell/fish/config.fish"
+    source "$TCONF/priv/shell/fish/config.fish"
+end
