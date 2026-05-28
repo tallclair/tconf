@@ -1,7 +1,0 @@
-export PATH="$TCONF/local/bin:$PATH"
-export DEVICE=desktop
-export DEVICE_NAME=$DEVICE # Deprecated
-
-# Background settings
-# export BG_IMAGE=$HOME/.wallpapers/default
-export BG_COLOR="#002b36"

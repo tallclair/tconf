@@ -1,6 +1,0 @@
-!! Paths relative to $TCONF/
-!! Merge with xrdb -merge -I$TCONF .Xresources
-#include "Xresources/font"
-#include "Xresources/urxvt"
-#include "themes/current-theme/Xresources"
-#include "local/etc/Xresources"
