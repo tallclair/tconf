@@ -1,0 +1,18 @@
+{{- /* Prompt for Environment */ -}}
+{{- $envChoice := promptStringOnce . "environment" "Environment type (personal or work)" "personal" -}}
+
+{{- /* Determine default email based on environment choice */ -}}
+{{- $email := "timallclair@gmail.com" -}}
+{{- if eq $envChoice "work" -}}
+{{-   $email = "tallclair@google.com" -}}
+{{- end -}}
+
+# Permanently lock Chezmoi to operate out of the tconf/chezmoi subdirectory
+sourceDir = "{{ .chezmoi.homeDir }}/tconf/chezmoi"
+
+[data]
+    environment = {{ $envChoice | quote }}
+    email = {{ $email | quote }}
+    editor = "micro"
+
+    env.vars.EDITOR = {{ .editor | quote }}
