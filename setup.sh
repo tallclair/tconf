@@ -13,13 +13,11 @@ CONFIG="setup.sh"
 
 hm_init
 
-# i3 configuration
-hmrol i3/local_config .i3/config
+
 
 # shell configuration
 hmrol shell/local_bashrc .bashrc
 hmrol shell/zshrc .zshrc
-hmrol Xresources/base .Xresources
 hmrol shell/fish/config.fish .config/fish/config.fish
 
 # git configuration
@@ -39,7 +37,6 @@ hml micro/bindings.json .config/micro/bindings.json
 
 # misc
 hmrol etc/tmux.conf .tmux.conf
-hmrol etc/gdbinit .gdbinit
 hmrol etc/inputrc  .inputrc
 hmrol etc/shpool.toml .config/shpool/config.toml
 

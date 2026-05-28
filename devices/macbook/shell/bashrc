@@ -7,7 +7,6 @@ fi
 if command -v kubectl &> /dev/null; then
     # Kubernetes bash completions.
     source <(kubectl completion bash)
-    . "$TCONF/projects/kubernetes/etc/bashrc"
 fi
 
 [[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
