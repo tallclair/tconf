@@ -7,12 +7,14 @@
 {{-   $email = "tallclair@google.com" -}}
 {{- end -}}
 
+{{- $editor := "micro" -}}
+
 # Permanently lock Chezmoi to operate out of the tconf/chezmoi subdirectory
 sourceDir = "{{ .chezmoi.homeDir }}/tconf/chezmoi"
 
 [data]
     environment = {{ $envChoice | quote }}
     email = {{ $email | quote }}
-    editor = "micro"
+    editor = {{ $editor | quote }}
 
-    env.vars.EDITOR = {{ .editor | quote }}
+    env.vars.EDITOR = {{ $editor | quote }}
